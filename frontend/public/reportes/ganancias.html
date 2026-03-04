@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4F46E5">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="icon" href="../img/icons/logo.jpg">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="../css/theme.css">
+    
+    <title>Reporte de Ganancias - SICOM</title>
+    
+    <style>
+        .reportes-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-4);
+        }
+        
+        .form-panel {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color-light);
+            padding: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-4);
+            align-items: flex-end;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-2);
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: var(--space-3);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+        }
+        
+        .stats-row {
+            display: flex;
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+        
+        .stat-card {
+            flex: 1;
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color-light);
+            padding: var(--space-4);
+            text-align: center;
+        }
+        
+        .stat-card.success { border-color: var(--color-success); }
+        
+        .stat-card .stat-value {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+        }
+        
+        .stat-card.success .stat-value {
+            color: var(--color-success);
+        }
+        
+        .stat-card .stat-label {
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+        }
+        
+        .table-wrapper {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color-light);
+            overflow-x: auto;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+        
+        .data-table th {
+            background: var(--bg-muted);
+            padding: var(--space-3) var(--space-4);
+            text-align: left;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color-light);
+        }
+        
+        .data-table td {
+            padding: var(--space-3) var(--space-4);
+            border-bottom: 1px solid var(--border-color-light);
+        }
+        
+        .data-table tbody tr:hover {
+            background: var(--bg-muted);
+        }
+        
+        .ganancia-positiva {
+            color: var(--color-success);
+            font-weight: var(--font-weight-semibold);
+        }
+        
+        .ganancia-negativa {
+            color: var(--color-danger);
+            font-weight: var(--font-weight-semibold);
+        }
+        
+        .total-row {
+            background: var(--bg-muted) !important;
+            font-weight: var(--font-weight-bold);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: var(--space-8);
+            color: var(--text-muted);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: var(--space-4);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--color-primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Offline Banner -->
+    <div id="offlineBanner" class="offline-banner">
+        <i class="bi bi-wifi-off"></i> Sin conexión a internet
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="btn btn-ghost" id="sidebarToggle" aria-label="Toggle menu">
+            <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+        </button>
+        
+        <a class="navbar-brand" href="../dashboard.html">
+            <i class="bi bi-shop"></i>
+            <span>SICOM</span>
+        </a>
+        
+        <div class="navbar-spacer"></div>
+        
+        <div class="navbar-user">
+            <div class="navbar-info">
+                <i class="bi bi-building"></i>
+                <span id="negocioNombre">-</span>
+            </div>
+            <button class="btn btn-ghost btn-sm" id="btnLogout" title="Cerrar sesión">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <ul class="sidebar-nav">
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="../dashboard.html">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-divider"></li>
+            <li class="sidebar-header">Reportes</li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="index.html">
+                    <i class="bi bi-graph-up"></i>
+                    <span>Menú Reportes</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="ventas-dia.html">
+                    <i class="bi bi-calendar-day"></i>
+                    <span>Ventas por Día</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="ventas-rango.html">
+                    <i class="bi bi-calendar-range"></i>
+                    <span>Ventas por Rango</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link active" href="ganancias.html">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Ganancias</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="ingreso-dia.html">
+                    <i class="bi bi-bar-chart-line"></i>
+                    <span>Ingresos por Día</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="promedio.html">
+                    <i class="bi bi-calculator"></i>
+                    <span>Promedio Ventas</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="reportes-container">
+            <div class="page-header">
+                <h1 class="page-title">
+                    <i class="bi bi-graph-up-arrow"></i> Reporte de Ganancias
+                </h1>
+            </div>
+
+            <!-- Formulario -->
+            <div class="form-panel">
+                <form id="formFiltros">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="usuario">Vendedor</label>
+                            <select id="usuario" name="usuario" required>
+                                <option value="">-- Selecciona --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fecha1">Fecha Inicio</label>
+                            <input type="date" id="fecha1" name="fecha1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fecha2">Fecha Fin</label>
+                            <input type="date" id="fecha2" name="fecha2" required>
+                        </div>
+                        <div class="form-group" style="flex: 0;">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i> Ver Reporte
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-row" id="statsRow" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-value" id="statVenta">$0</div>
+                    <div class="stat-label">Total Ventas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statCosto">$0</div>
+                    <div class="stat-label">Total Costos</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-value" id="statGanancia">$0</div>
+                    <div class="stat-label">Ganancia Neta</div>
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <div class="table-wrapper" id="tablaWrapper" style="display: none;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th style="text-align: center;">Unidades</th>
+                            <th style="text-align: right;">P. Compra</th>
+                            <th style="text-align: right;">Total Venta</th>
+                            <th style="text-align: right;">Total Costo</th>
+                            <th style="text-align: right;">Ganancia</th>
+                            <th style="text-align: center;">Forma Pago</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="table-wrapper empty-state" style="display: none;">
+                <i class="bi bi-inbox"></i>
+                <p>No se encontraron datos para los filtros seleccionados.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- JavaScript -->
+    <script src="../js/idb.js"></script>
+    <script src="../js/app.js"></script>
+    
+    <script>
+        // DOM Elements
+        const formFiltros = document.getElementById('formFiltros');
+        const selectUsuario = document.getElementById('usuario');
+        
+        // Cargar formulario
+        async function cargarFormulario() {
+            try {
+                const data = await SICOM.ReporteGanancias.obtenerFormulario();
+                
+                // Usuarios
+                selectUsuario.innerHTML = '<option value="">-- Selecciona --</option>';
+                (data.usuarios || []).forEach(u => {
+                    const option = document.createElement('option');
+                    option.value = u.cod_usuario;
+                    option.textContent = u.nombre;
+                    selectUsuario.appendChild(option);
+                });
+                
+                // Fechas por defecto (mes actual)
+                const hoy = new Date();
+                const primerDia = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+                document.getElementById('fecha1').value = primerDia.toISOString().split('T')[0];
+                document.getElementById('fecha2').value = hoy.toISOString().split('T')[0];
+                
+                document.getElementById('negocioNombre').textContent = data.negocio || '-';
+                
+            } catch (error) {
+                console.error('Error:', error);
+                SICOM.UI.toast('Error al cargar datos', 'error');
+            }
+        }
+        
+        // Consultar
+        formFiltros.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const usuario = selectUsuario.value;
+            if (!usuario) {
+                SICOM.UI.toast('Selecciona un vendedor', 'warning');
+                return;
+            }
+            
+            const btn = formFiltros.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Consultando...';
+            
+            try {
+                const data = await SICOM.ReporteGanancias.consultar(
+                    document.getElementById('fecha1').value,
+                    document.getElementById('fecha2').value,
+                    usuario
+                );
+                
+                if (data.productos && data.productos.length > 0) {
+                    mostrarResultados(data);
+                } else {
+                    document.getElementById('statsRow').style.display = 'none';
+                    document.getElementById('tablaWrapper').style.display = 'none';
+                    document.getElementById('emptyState').style.display = 'block';
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                SICOM.UI.toast('Error al consultar', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-search"></i> Ver Reporte';
+            }
+        });
+        
+        // Mostrar resultados
+        function mostrarResultados(data) {
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('statsRow').style.display = 'flex';
+            document.getElementById('tablaWrapper').style.display = 'block';
+            
+            // Stats
+            document.getElementById('statVenta').textContent = SICOM.Utils.formatCurrency(data.totales.venta_general);
+            document.getElementById('statCosto').textContent = SICOM.Utils.formatCurrency(data.totales.costo_general);
+            document.getElementById('statGanancia').textContent = SICOM.Utils.formatCurrency(data.totales.ganancia_general);
+            
+            // Tabla
+            const tbody = document.getElementById('tablaBody');
+            tbody.innerHTML = '';
+            
+            data.productos.forEach(p => {
+                const row = document.createElement('tr');
+                const gananciaClass = p.ganancia >= 0 ? 'ganancia-positiva' : 'ganancia-negativa';
+                row.innerHTML = `
+                    <td>${p.producto}</td>
+                    <td style="text-align: center;">${p.unidades}</td>
+                    <td style="text-align: right;">${SICOM.Utils.formatCurrency(p.precio_compra)}</td>
+                    <td style="text-align: right;">${SICOM.Utils.formatCurrency(p.total_venta)}</td>
+                    <td style="text-align: right;">${SICOM.Utils.formatCurrency(p.total_costo)}</td>
+                    <td style="text-align: right;" class="${gananciaClass}">${SICOM.Utils.formatCurrency(p.ganancia)}</td>
+                    <td style="text-align: center;"><span class="badge">${p.forma_pago}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Total row
+            const totalRow = document.createElement('tr');
+            totalRow.className = 'total-row';
+            totalRow.innerHTML = `
+                <td colspan="3" style="text-align: right;">TOTALES:</td>
+                <td style="text-align: right;">${SICOM.Utils.formatCurrency(data.totales.venta_general)}</td>
+                <td style="text-align: right;">${SICOM.Utils.formatCurrency(data.totales.costo_general)}</td>
+                <td style="text-align: right;" class="ganancia-positiva">${SICOM.Utils.formatCurrency(data.totales.ganancia_general)}</td>
+                <td></td>
+            `;
+            tbody.appendChild(totalRow);
+        }
+        
+        // Sidebar
+        function initSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('show');
+            });
+            
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('show');
+            });
+        }
+        
+        // Logout
+        document.getElementById('btnLogout').addEventListener('click', async () => {
+            if (confirm('¿Deseas cerrar la sesión?')) {
+                try { await SICOM.Auth.logout(); } catch (e) { console.error(e); }
+            }
+        });
+        
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            const session = SICOM.Session.getData();
+            if (session) {
+                document.getElementById('negocioNombre').textContent = session.negocio || '-';
+            }
+            initSidebar();
+            cargarFormulario();
+        });
+    </script>
+</body>
+</html>

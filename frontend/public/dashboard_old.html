@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#667eea">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="img/icons/logo.jpg">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="css/vendor/datatables/dataTables.bootstrap.css">
+    <link rel="stylesheet" href="css/vendor/select2/select2.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/cssMenu.css">
+    <link rel="stylesheet" href="css/estilos.css">
+    
+    <title>Dashboard - SICOM</title>
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        /* Navbar */
+        .navbar-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            color: white !important;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+        
+        .navbar-text {
+            color: rgba(255,255,255,0.8);
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 56px;
+            left: 0;
+            width: 250px;
+            height: calc(100vh - 56px);
+            background: #2a3f54;
+            padding-top: 20px;
+            transition: all 0.3s;
+            z-index: 999;
+        }
+        
+        .sidebar.collapsed {
+            width: 70px;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left-color: #667eea;
+        }
+        
+        .sidebar .nav-link.active {
+            background: rgba(102, 126, 234, 0.2);
+            color: white;
+            border-left-color: #667eea;
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 12px;
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .sidebar.collapsed .nav-text {
+            display: none;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: all 0.3s;
+            min-height: calc(100vh - 56px);
+        }
+        
+        .main-content.expanded {
+            margin-left: 70px;
+        }
+        
+        /* Cards de estadísticas */
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .stat-icon.bg-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .stat-icon.bg-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .stat-icon.bg-warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .stat-icon.bg-info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        /* Accesos rápidos */
+        .quick-action {
+            background: white;
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .quick-action:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .quick-action i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+        
+        .quick-action h5 {
+            margin: 0;
+            color: #333;
+        }
+        
+        /* Tabla */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        /* Footer */
+        .footer {
+            background: #2a3f54;
+            color: rgba(255,255,255,0.8);
+            padding: 15px 20px;
+            margin-left: 250px;
+            transition: all 0.3s;
+        }
+        
+        .footer.expanded {
+            margin-left: 70px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 250px;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content,
+            .footer {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+        <div class="container-fluid">
+            <button class="btn btn-link text-white me-2" id="sidebarToggle">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-shop"></i> SICOM
+            </a>
+            <div class="d-flex align-items-center">
+                <span class="navbar-text me-3 d-none d-md-inline">
+                    <i class="bi bi-building"></i> <span id="negocioNombre">-</span>
+                </span>
+                <span class="navbar-text me-3 d-none d-md-inline">
+                    <i class="bi bi-person-circle"></i> <span id="usuarioNombre">-</span>
+                </span>
+                <button class="btn btn-outline-light btn-sm" id="btnLogout">
+                    <i class="bi bi-box-arrow-right"></i> Salir
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="nav flex-column">
+            <a class="nav-link active" href="dashboard.html">
+                <i class="bi bi-speedometer2"></i>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a class="nav-link" href="ventas/nueva.html">
+                <i class="bi bi-cart-plus"></i>
+                <span class="nav-text">Nueva Venta</span>
+            </a>
+            <a class="nav-link" href="ventas/historial.html">
+                <i class="bi bi-clock-history"></i>
+                <span class="nav-text">Historial Ventas</span>
+            </a>
+            <a class="nav-link" href="productos/index.html">
+                <i class="bi bi-box-seam"></i>
+                <span class="nav-text">Productos</span>
+            </a>
+            <a class="nav-link" href="stock/index.html">
+                <i class="bi bi-boxes"></i>
+                <span class="nav-text">Inventario</span>
+            </a>
+            <a class="nav-link" href="clientes/index.html">
+                <i class="bi bi-people"></i>
+                <span class="nav-text">Clientes</span>
+            </a>
+            <a class="nav-link" href="reportes/index.html">
+                <i class="bi bi-graph-up"></i>
+                <span class="nav-text">Reportes</span>
+            </a>
+            <a class="nav-link" href="configuracion/index.html">
+                <i class="bi bi-gear"></i>
+                <span class="nav-text">Configuración</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent" style="margin-top: 56px;">
+        <div class="container-fluid">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">Dashboard</h2>
+                    <p class="text-muted mb-0">Resumen del día: <span id="fechaHoy">-</span></p>
+                </div>
+                <button class="btn btn-primary" onclick="window.location.href='ventas/nueva.html'">
+                    <i class="bi bi-plus-lg"></i> Nueva Venta
+                </button>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon bg-primary me-3">
+                                <i class="bi bi-currency-dollar"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value" id="ventasHoy">$0</div>
+                                <div class="stat-label">Ventas Hoy</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon bg-success me-3">
+                                <i class="bi bi-receipt"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value" id="ticketsHoy">0</div>
+                                <div class="stat-label">Tickets</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon bg-warning me-3">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value" id="productosStock">0</div>
+                                <div class="stat-label">Productos en Stock</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon bg-info me-3">
+                                <i class="bi bi-exclamation-triangle"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value" id="stockBajo">0</div>
+                                <div class="stat-label">Stock Bajo</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <h5 class="mb-3">Accesos Rápidos</h5>
+            <div class="row g-4 mb-4">
+                <div class="col-6 col-md-3">
+                    <a href="ventas/nueva.html" class="quick-action">
+                        <i class="bi bi-cart-plus"></i>
+                        <h5>Nueva Venta</h5>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3">
+                    <a href="productos/agregar.html" class="quick-action">
+                        <i class="bi bi-plus-circle"></i>
+                        <h5>Agregar Producto</h5>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3">
+                    <a href="stock/entrada.html" class="quick-action">
+                        <i class="bi bi-box-arrow-in-down"></i>
+                        <h5>Entrada Stock</h5>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3">
+                    <a href="reportes/ventas.html" class="quick-action">
+                        <i class="bi bi-file-earmark-bar-graph"></i>
+                        <h5>Reporte Ventas</h5>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Sales -->
+            <div class="table-container">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Últimas Ventas</h5>
+                    <a href="ventas/historial.html" class="btn btn-sm btn-outline-primary">Ver todas</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover" id="tablaVentas">
+                        <thead>
+                            <tr>
+                                <th>Folio</th>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Productos</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ventasBody">
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                    Cargando ventas...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" id="footer">
+        <div class="d-flex justify-content-between align-items-center">
+            <span>SICOM v1.0 - Sistema de Punto de Venta</span>
+            <span>&copy; 2026 Soluciones TI</span>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/vendor/jquery/jquery.min.js"></script>
+    <script src="js/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="js/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="js/vendor/datatables/dataTables.bootstrap.min.js"></script>
+    <script src="js/idb.js"></script>
+    <script src="js/app.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar sesión
+            if (!SICOM.Session.isLoggedIn()) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Cargar datos de sesión
+            const session = SICOM.Session.getData();
+            document.getElementById('usuarioNombre').textContent = session.usuario || '-';
+            document.getElementById('negocioNombre').textContent = session.negocio || '-';
+            
+            // Fecha actual
+            document.getElementById('fechaHoy').textContent = SICOM.Utils.formatDate(new Date());
+            
+            // Toggle sidebar
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const footer = document.getElementById('footer');
+            
+            document.getElementById('sidebarToggle').addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+                footer.classList.toggle('expanded');
+            });
+            
+            // Logout
+            document.getElementById('btnLogout').addEventListener('click', function() {
+                SICOM.UI.confirm('¿Desea cerrar la sesión?', function() {
+                    SICOM.Session.logout();
+                });
+            });
+            
+            // Cargar estadísticas
+            cargarEstadisticas();
+            
+            // Cargar últimas ventas
+            cargarUltimasVentas();
+        });
+        
+        // Cargar estadísticas del día
+        async function cargarEstadisticas() {
+            try {
+                const stats = await SICOM.API.get('/dashboard/resumen.php');
+                
+                if (stats) {
+                    document.getElementById('ventasHoy').textContent = SICOM.Utils.formatCurrency(stats.ventas_hoy || 0);
+                    document.getElementById('ticketsHoy').textContent = stats.tickets_hoy || 0;
+                    document.getElementById('productosStock').textContent = stats.productos_stock || 0;
+                    document.getElementById('stockBajo').textContent = stats.stock_bajo || 0;
+                }
+            } catch (error) {
+                SICOM.Logger.error('Error cargando estadísticas:', error);
+                // Mostrar datos de ejemplo
+                document.getElementById('ventasHoy').textContent = SICOM.Utils.formatCurrency(12500);
+                document.getElementById('ticketsHoy').textContent = '15';
+                document.getElementById('productosStock').textContent = '234';
+                document.getElementById('stockBajo').textContent = '8';
+            }
+        }
+        
+        // Cargar últimas ventas
+        async function cargarUltimasVentas() {
+            try {
+                const ventas = await SICOM.API.get('/ventas/ultimas.php', { limite: 5 });
+                renderizarVentas(ventas);
+            } catch (error) {
+                SICOM.Logger.error('Error cargando ventas:', error);
+                // Mostrar datos de ejemplo
+                renderizarVentas([
+                    { folio: 'V001', fecha: new Date(), cliente: 'Público General', productos: 3, total: 1250, estado: 'completada' },
+                    { folio: 'V002', fecha: new Date(), cliente: 'Juan Pérez', productos: 5, total: 3500, estado: 'completada' },
+                    { folio: 'V003', fecha: new Date(), cliente: 'María García', productos: 2, total: 890, estado: 'pendiente' }
+                ]);
+            }
+        }
+        
+        // Renderizar tabla de ventas
+        function renderizarVentas(ventas) {
+            const tbody = document.getElementById('ventasBody');
+            
+            if (!ventas || ventas.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                            No hay ventas registradas hoy
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = ventas.map(venta => `
+                <tr>
+                    <td><strong>${venta.folio}</strong></td>
+                    <td>${SICOM.Utils.formatDateTime(venta.fecha)}</td>
+                    <td>${SICOM.Utils.sanitizeHTML(venta.cliente)}</td>
+                    <td>${venta.productos}</td>
+                    <td><strong>${SICOM.Utils.formatCurrency(venta.total)}</strong></td>
+                    <td>
+                        <span class="badge ${venta.estado === 'completada' ? 'bg-success' : 'bg-warning'}">
+                            ${venta.estado}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Responsive sidebar para móviles
+        if (window.innerWidth <= 768) {
+            document.getElementById('sidebarToggle').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('active');
+            });
+        }
+    </script>
+</body>
+</html>

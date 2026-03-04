@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4F46E5">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="icon" href="../img/icons/logo.jpg">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="../css/theme.css">
+    
+    <title>Gestor de Stock - SICOM</title>
+    
+    <style>
+        .stock-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-4);
+        }
+        
+        /* Header con selector de espacio */
+        .stock-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+        
+        .espacio-selector {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+        
+        .espacio-selector select {
+            padding: var(--space-3);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            min-width: 200px;
+        }
+        
+        /* Panel de agregar stock */
+        .add-stock-panel {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color-light);
+            padding: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+        
+        .add-stock-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: var(--space-4);
+            align-items: end;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-2);
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: var(--space-3);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+        }
+        
+        /* Barra de herramientas */
+        .stock-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+            align-items: center;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            max-width: 400px;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: var(--space-3) var(--space-3) var(--space-3) var(--space-10);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: var(--space-3);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+        
+        /* Tabla de stock */
+        .stock-table-wrapper {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color-light);
+            overflow: hidden;
+        }
+        
+        .stock-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .stock-table th {
+            background: var(--bg-muted);
+            padding: var(--space-4);
+            text-align: left;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color-light);
+        }
+        
+        .stock-table td {
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--border-color-light);
+            vertical-align: middle;
+        }
+        
+        .stock-table tbody tr:hover {
+            background: var(--bg-muted);
+        }
+        
+        .stock-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Indicadores de stock */
+        .stock-high {
+            background-color: rgba(16, 185, 129, 0.1);
+        }
+        
+        .stock-low {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+        
+        /* Acciones en fila */
+        .row-actions {
+            display: flex;
+            gap: var(--space-2);
+            align-items: center;
+        }
+        
+        .cantidad-input {
+            width: 70px;
+            padding: var(--space-2);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+        
+        .transfer-select {
+            width: 120px;
+            padding: var(--space-2);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+        }
+        
+        /* Panel de email */
+        .email-panel {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color-light);
+            padding: var(--space-6);
+            margin-top: var(--space-6);
+        }
+        
+        .email-form {
+            display: flex;
+            gap: var(--space-3);
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .email-form input {
+            flex: 1;
+            min-width: 250px;
+            padding: var(--space-3);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+        }
+        
+        /* Badges */
+        .badge-genero {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+        
+        .badge-D { background: #ff7eb6; color: white; }
+        .badge-C { background: #7db7ff; color: white; }
+        .badge-U { background: #dba315; color: white; }
+        .badge-default { background: var(--bg-muted); color: var(--text-secondary); }
+        
+        /* Decant indicator */
+        .decant-indicator {
+            display: inline-block;
+            padding: 2px 6px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            margin-left: var(--space-2);
+        }
+        
+        /* Stats */
+        .stock-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+        
+        .stat-card {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color-light);
+            padding: var(--space-4);
+            text-align: center;
+        }
+        
+        .stat-card .stat-value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+        }
+        
+        .stat-card .stat-label {
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+        }
+        
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stock-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .add-stock-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .stock-table-wrapper {
+                overflow-x: auto;
+            }
+            
+            .stock-table {
+                min-width: 800px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Offline Banner -->
+    <div id="offlineBanner" class="offline-banner">
+        <i class="bi bi-wifi-off"></i> Sin conexión a internet
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="btn btn-ghost" id="sidebarToggle" aria-label="Toggle menu">
+            <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+        </button>
+        
+        <a class="navbar-brand" href="../dashboard.html">
+            <i class="bi bi-shop"></i>
+            <span>SICOM</span>
+        </a>
+        
+        <div class="navbar-spacer"></div>
+        
+        <div class="navbar-user">
+            <div class="navbar-info">
+                <i class="bi bi-building"></i>
+                <span id="negocioNombre">-</span>
+            </div>
+            <button class="btn btn-ghost btn-sm" id="btnLogout" title="Cerrar sesión">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <ul class="sidebar-nav">
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="../dashboard.html">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-divider"></li>
+            <li class="sidebar-header">Inventario</li>
+            <li class="sidebar-item">
+                <a class="sidebar-link active" href="gestor.html">
+                    <i class="bi bi-boxes"></i>
+                    <span>Gestor de Stock</span>
+                </a>
+            </li>
+            <li class="sidebar-divider"></li>
+            <li class="sidebar-header">Ventas</li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="../ventas/nueva.html">
+                    <i class="bi bi-bag-plus"></i>
+                    <span>Productos</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="../decants/nueva.html">
+                    <i class="bi bi-droplet"></i>
+                    <span>Decants</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="stock-container">
+            <div class="page-header">
+                <h1 class="page-title">
+                    <i class="bi bi-boxes"></i> Gestor de Stock
+                </h1>
+            </div>
+
+            <!-- Selector de espacio -->
+            <div class="stock-header">
+                <div class="espacio-selector">
+                    <label for="selectEspacio"><strong>Espacio:</strong></label>
+                    <select id="selectEspacio">
+                        <option value="">-- Selecciona un espacio --</option>
+                    </select>
+                </div>
+                
+                <div class="stock-actions">
+                    <button class="btn btn-success btn-sm" id="btnDescargar">
+                        <i class="bi bi-download"></i> Descargar TXT
+                    </button>
+                    <button class="btn btn-outline btn-sm" id="btnRecargar">
+                        <i class="bi bi-arrow-clockwise"></i> Actualizar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stock-stats" id="stockStats" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalProductos">0</div>
+                    <div class="stat-label">Productos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalItems">0</div>
+                    <div class="stat-label">Total Items</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="valorTotal">$0</div>
+                    <div class="stat-label">Valor Total</div>
+                </div>
+            </div>
+
+            <!-- Panel Agregar Stock (solo admin) -->
+            <div class="add-stock-panel" id="addStockPanel" style="display: none;">
+                <h3 style="margin-bottom: var(--space-4);"><i class="bi bi-plus-circle"></i> Agregar Stock</h3>
+                <form class="add-stock-form" id="formAgregarStock">
+                    <div class="form-group">
+                        <label>Producto</label>
+                        <select name="producto" id="selectProducto" required>
+                            <option value="">-- Selecciona --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cantidad</label>
+                        <input type="number" name="cantidad" min="1" max="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Precio Compra</label>
+                        <input type="number" name="precioCompra" min="1" max="5000" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Precio Venta</label>
+                        <input type="number" name="precioVenta" min="1" max="7000" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            <i class="bi bi-plus"></i> Agregar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Barra de herramientas -->
+            <div class="stock-toolbar">
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar producto...">
+                </div>
+            </div>
+
+            <!-- Tabla de stock -->
+            <div class="stock-table-wrapper">
+                <table class="stock-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Producto</th>
+                            <th>Género</th>
+                            <th class="admin-col" style="display: none;">P. Compra</th>
+                            <th>P. Venta</th>
+                            <th>Cantidad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stockTableBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px;">
+                                <i class="bi bi-box" style="font-size: 3rem; color: var(--text-muted);"></i>
+                                <p>Selecciona un espacio para ver el stock</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Panel enviar por correo -->
+            <div class="email-panel">
+                <h4 style="margin-bottom: var(--space-3);"><i class="bi bi-envelope"></i> Enviar Stock por Correo</h4>
+                <form class="email-form" id="formEnviarCorreo">
+                    <input type="email" name="correo" placeholder="correo@ejemplo.com" required>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send"></i> Enviar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Modal Transferir -->
+    <div id="modalTransferir" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: white; border-radius: var(--radius-lg); padding: var(--space-6); max-width: 400px; width: 90%;">
+            <h3 style="margin-bottom: var(--space-4);">Transferir Stock</h3>
+            <p style="margin-bottom: var(--space-4);">
+                Producto: <strong id="transferProductoNombre"></strong>
+            </p>
+            <div class="form-group" style="margin-bottom: var(--space-4);">
+                <label>Espacio destino:</label>
+                <select id="selectEspacioDestino" style="width: 100%; padding: var(--space-3); border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+                </select>
+            </div>
+            <div style="display: flex; gap: var(--space-3); justify-content: flex-end;">
+                <button class="btn btn-ghost" onclick="cerrarModalTransferir()">Cancelar</button>
+                <button class="btn btn-primary" onclick="confirmarTransferencia()">
+                    <i class="bi bi-arrow-right-circle"></i> Transferir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="../js/idb.js"></script>
+    <script src="../js/app.js"></script>
+    
+    <script>
+        // Estado global
+        let stockData = null;
+        let espacioActual = null;
+        let negocioActual = null;
+        let puedeAdministrar = false;
+        let productoATransferir = null;
+        
+        // Cargar datos iniciales
+        async function cargarDatosIniciales() {
+            try {
+                const data = await SICOM.Stock.listar();
+                stockData = data;
+                negocioActual = data.negocio;
+                puedeAdministrar = data.permisos?.puede_administrar || false;
+                
+                // Mostrar nombre del negocio
+                document.getElementById('negocioNombre').textContent = data.negocio?.nombre || '-';
+                
+                // Cargar espacios
+                cargarEspacios(data.espacios, data.espacio_seleccionado);
+                
+                // Cargar productos para el formulario de agregar
+                if (puedeAdministrar) {
+                    cargarProductos(data.productos);
+                    document.getElementById('addStockPanel').style.display = 'block';
+                    document.querySelectorAll('.admin-col').forEach(el => el.style.display = '');
+                }
+                
+                // Si hay espacio seleccionado, mostrar stock
+                if (data.espacio_seleccionado) {
+                    espacioActual = data.espacio_seleccionado.cod_espacio;
+                    renderizarStock(data.stock);
+                    document.getElementById('stockStats').style.display = 'grid';
+                }
+                
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+                SICOM.UI.toast('Error al cargar los datos', 'error');
+            }
+        }
+        
+        // Cargar espacios en el select
+        function cargarEspacios(espacios, seleccionado) {
+            const select = document.getElementById('selectEspacio');
+            select.innerHTML = '<option value="">-- Selecciona un espacio --</option>';
+            
+            espacios.forEach(esp => {
+                const option = document.createElement('option');
+                option.value = esp.cod_espacio;
+                option.textContent = esp.descripcion;
+                if (seleccionado && esp.cod_espacio == seleccionado.cod_espacio) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+        }
+        
+        // Cargar productos en el select de agregar
+        function cargarProductos(productos) {
+            const select = document.getElementById('selectProducto');
+            select.innerHTML = '<option value="">-- Selecciona --</option>';
+            
+            productos.forEach(prod => {
+                const option = document.createElement('option');
+                option.value = prod.cod_producto;
+                option.textContent = prod.nombre;
+                select.appendChild(option);
+            });
+        }
+        
+        // Renderizar tabla de stock
+        function renderizarStock(stock) {
+            const tbody = document.getElementById('stockTableBody');
+            
+            if (!stock || stock.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px;">
+                            <i class="bi bi-inbox" style="font-size: 3rem; color: var(--text-muted);"></i>
+                            <p>No hay productos en stock en este espacio</p>
+                        </td>
+                    </tr>
+                `;
+                actualizarStats(0, 0, 0);
+                return;
+            }
+            
+            let totalItems = 0;
+            let valorTotal = 0;
+            
+            tbody.innerHTML = stock.map((item, index) => {
+                totalItems += item.cantidad;
+                valorTotal += item.cantidad * item.precio_venta;
+                
+                const isDecant = item.nombre.toLowerCase().includes('decant');
+                const genero = item.genero || '';
+                let badgeClass = 'badge-default';
+                if (genero === 'D') badgeClass = 'badge-D';
+                else if (genero === 'C') badgeClass = 'badge-C';
+                else if (genero === 'U') badgeClass = 'badge-U';
+                
+                let rowClass = '';
+                if (item.cantidad > 1) rowClass = 'stock-high';
+                else if (item.cantidad <= 1) rowClass = 'stock-low';
+                
+                return `
+                <tr class="${rowClass}" data-producto="${item.cod_producto}">
+                    <td>${index + 1}</td>
+                    <td>
+                        ${item.nombre}
+                        ${isDecant ? '<span class="decant-indicator">Decant</span>' : ''}
+                    </td>
+                    <td><span class="badge-genero ${badgeClass}">${genero}</span></td>
+                    <td class="admin-col" ${!puedeAdministrar ? 'style="display:none;"' : ''}>
+                        ${SICOM.Utils.formatCurrency(item.precio_compra)}
+                    </td>
+                    <td>${SICOM.Utils.formatCurrency(item.precio_venta)}</td>
+                    <td>
+                        <input type="number" class="cantidad-input" value="${item.cantidad}" 
+                               min="1" max="100" data-original="${item.cantidad}"
+                               onchange="actualizarCantidad(${item.cod_producto}, this.value)">
+                    </td>
+                    <td>
+                        <div class="row-actions">
+                            <button class="btn btn-warning btn-sm" 
+                                    onclick="guardarCantidad(${item.cod_producto})"
+                                    title="Actualizar cantidad">
+                                <i class="bi bi-check"></i>
+                            </button>
+                            ${puedeAdministrar ? `
+                                <button class="btn btn-danger btn-sm" 
+                                        onclick="eliminarStock(${item.cod_producto}, '${item.nombre.replace(/'/g, "\\'")}')"
+                                        title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                <button class="btn btn-info btn-sm"
+                                        onclick="abrirModalTransferir(${item.cod_producto}, '${item.nombre.replace(/'/g, "\\'")}')"
+                                        title="Transferir">
+                                    <i class="bi bi-arrow-right-circle"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+            
+            actualizarStats(stock.length, totalItems, valorTotal);
+        }
+        
+        // Actualizar estadísticas
+        function actualizarStats(productos, items, valor) {
+            document.getElementById('totalProductos').textContent = productos;
+            document.getElementById('totalItems').textContent = items;
+            document.getElementById('valorTotal').textContent = SICOM.Utils.formatCurrency(valor);
+        }
+        
+        // Cambiar espacio
+        document.getElementById('selectEspacio').addEventListener('change', async (e) => {
+            const espacio = e.target.value;
+            if (!espacio) {
+                document.getElementById('stockTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px;">
+                            <i class="bi bi-box" style="font-size: 3rem; color: var(--text-muted);"></i>
+                            <p>Selecciona un espacio para ver el stock</p>
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('stockStats').style.display = 'none';
+                return;
+            }
+            
+            try {
+                const data = await SICOM.Stock.listar(espacio);
+                stockData = data;
+                espacioActual = espacio;
+                renderizarStock(data.stock);
+                cargarProductos(data.productos);
+                document.getElementById('stockStats').style.display = 'grid';
+            } catch (error) {
+                console.error('Error al cambiar espacio:', error);
+                SICOM.UI.toast('Error al cargar el stock', 'error');
+            }
+        });
+        
+        // Filtro de búsqueda
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const value = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#stockTableBody tr[data-producto]');
+            
+            rows.forEach(row => {
+                const texto = row.textContent.toLowerCase();
+                row.style.display = texto.includes(value) ? '' : 'none';
+            });
+        });
+        
+        // Agregar stock
+        document.getElementById('formAgregarStock').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const datos = {
+                producto: formData.get('producto'),
+                cantidad: formData.get('cantidad'),
+                precioCompra: formData.get('precioCompra'),
+                precioVenta: formData.get('precioVenta'),
+                espacio: espacioActual
+            };
+            
+            if (!espacioActual) {
+                SICOM.UI.toast('Selecciona un espacio primero', 'warning');
+                return;
+            }
+            
+            try {
+                await SICOM.Stock.agregar(datos);
+                SICOM.UI.toast('Stock agregado correctamente', 'success');
+                e.target.reset();
+                
+                // Recargar stock
+                const data = await SICOM.Stock.listar(espacioActual);
+                renderizarStock(data.stock);
+            } catch (error) {
+                console.error('Error agregando stock:', error);
+                SICOM.UI.toast('Error al agregar stock', 'error');
+            }
+        });
+        
+        // Actualizar cantidad
+        async function guardarCantidad(codProducto) {
+            const input = document.querySelector(`tr[data-producto="${codProducto}"] .cantidad-input`);
+            const cantidad = parseInt(input.value);
+            
+            if (!cantidad || cantidad < 1) {
+                SICOM.UI.toast('Cantidad inválida', 'warning');
+                return;
+            }
+            
+            try {
+                await SICOM.Stock.actualizar(codProducto, cantidad, espacioActual);
+                SICOM.UI.toast('Cantidad actualizada', 'success');
+                input.dataset.original = cantidad;
+                
+                // Recargar para actualizar stats
+                const data = await SICOM.Stock.listar(espacioActual);
+                renderizarStock(data.stock);
+            } catch (error) {
+                console.error('Error actualizando cantidad:', error);
+                SICOM.UI.toast('Error al actualizar', 'error');
+            }
+        }
+        
+        // Eliminar stock
+        async function eliminarStock(codProducto, nombre) {
+            if (!confirm(`¿Eliminar "${nombre}" del stock?`)) return;
+            
+            try {
+                await SICOM.Stock.eliminar(codProducto, espacioActual);
+                SICOM.UI.toast('Producto eliminado del stock', 'success');
+                
+                // Recargar
+                const data = await SICOM.Stock.listar(espacioActual);
+                renderizarStock(data.stock);
+            } catch (error) {
+                console.error('Error eliminando:', error);
+                SICOM.UI.toast('Error al eliminar', 'error');
+            }
+        }
+        
+        // Modal transferir
+        function abrirModalTransferir(codProducto, nombre) {
+            productoATransferir = codProducto;
+            document.getElementById('transferProductoNombre').textContent = nombre;
+            
+            // Cargar espacios destino
+            const select = document.getElementById('selectEspacioDestino');
+            select.innerHTML = '<option value="">-- Selecciona --</option>';
+            
+            stockData.espacios.forEach(esp => {
+                if (esp.cod_espacio != espacioActual) {
+                    const option = document.createElement('option');
+                    option.value = esp.cod_espacio;
+                    option.textContent = esp.descripcion;
+                    select.appendChild(option);
+                }
+            });
+            
+            document.getElementById('modalTransferir').style.display = 'flex';
+        }
+        
+        function cerrarModalTransferir() {
+            document.getElementById('modalTransferir').style.display = 'none';
+            productoATransferir = null;
+        }
+        
+        async function confirmarTransferencia() {
+            const destino = document.getElementById('selectEspacioDestino').value;
+            
+            if (!destino) {
+                SICOM.UI.toast('Selecciona un espacio destino', 'warning');
+                return;
+            }
+            
+            if (!confirm('¿Confirmar transferencia?')) return;
+            
+            try {
+                await SICOM.Stock.transferir(productoATransferir, espacioActual, destino);
+                SICOM.UI.toast('Transferencia realizada', 'success');
+                cerrarModalTransferir();
+                
+                // Recargar
+                const data = await SICOM.Stock.listar(espacioActual);
+                renderizarStock(data.stock);
+            } catch (error) {
+                console.error('Error transfiriendo:', error);
+                SICOM.UI.toast('Error al transferir', 'error');
+            }
+        }
+        
+        // Enviar por correo
+        document.getElementById('formEnviarCorreo').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!espacioActual) {
+                SICOM.UI.toast('Selecciona un espacio primero', 'warning');
+                return;
+            }
+            
+            const correo = e.target.correo.value;
+            const btn = e.target.querySelector('button');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Enviando...';
+            
+            try {
+                await SICOM.Stock.enviarCorreo(negocioActual.cod_negocio, espacioActual, correo);
+                SICOM.UI.toast('Correo enviado correctamente', 'success');
+                e.target.reset();
+            } catch (error) {
+                console.error('Error enviando correo:', error);
+                SICOM.UI.toast('Error al enviar correo', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-send"></i> Enviar';
+            }
+        });
+        
+        // Descargar TXT
+        document.getElementById('btnDescargar').addEventListener('click', () => {
+            if (!stockData || !stockData.stock || stockData.stock.length === 0) {
+                SICOM.UI.toast('No hay datos para descargar', 'warning');
+                return;
+            }
+            
+            const lines = [];
+            const espacio = stockData.espacio_seleccionado?.descripcion || 'Sin espacio';
+            const ahora = new Date();
+            const fecha = ahora.toLocaleDateString('es-MX');
+            const hora = ahora.toLocaleTimeString('es-MX');
+            
+            lines.push(`Negocio: ${stockData.negocio?.nombre || '-'}`);
+            lines.push(`Espacio: ${espacio}`);
+            lines.push(`Fecha: ${fecha}`);
+            lines.push(`Hora: ${hora}`);
+            lines.push('');
+            lines.push('Nombre del producto\tPrecio Venta\tCantidad');
+            
+            stockData.stock.forEach(item => {
+                lines.push(`${item.nombre}\t$${item.precio_venta.toFixed(2)}\t${item.cantidad}`);
+            });
+            
+            const blob = new Blob([lines.join('\r\n')], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `stock_${ahora.getFullYear()}${String(ahora.getMonth()+1).padStart(2,'0')}${String(ahora.getDate()).padStart(2,'0')}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            SICOM.UI.toast('Archivo descargado', 'success');
+        });
+        
+        // Recargar
+        document.getElementById('btnRecargar').addEventListener('click', async () => {
+            if (espacioActual) {
+                const data = await SICOM.Stock.listar(espacioActual);
+                stockData = data;
+                renderizarStock(data.stock);
+                SICOM.UI.toast('Stock actualizado', 'success');
+            }
+        });
+        
+        // Sidebar toggle
+        function initSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('show');
+            });
+            
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('show');
+            });
+        }
+        
+        // Logout
+        document.getElementById('btnLogout').addEventListener('click', async () => {
+            if (confirm('¿Deseas cerrar la sesión?')) {
+                try {
+                    await SICOM.Auth.logout();
+                } catch (error) {
+                    console.error('Error en logout:', error);
+                }
+            }
+        });
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            const session = SICOM.Session.getData();
+            if (session) {
+                document.getElementById('negocioNombre').textContent = session.negocio || '-';
+            }
+            
+            initSidebar();
+            cargarDatosIniciales();
+        });
+    </script>
+</body>
+</html>

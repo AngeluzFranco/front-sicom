@@ -1,0 +1,20 @@
+ body{
+        background-image: url("../imgs/fondo 2.jpg") ;  /*D2B48C */
+        
+        background-repeat: repeat;
+        background-position:  center center;
+        background-attachment:  fixed;
+        background-size: cover;
+        justify-content: space-between;
+        font-family: 'Nanum Gothic Coding', monospace; 
+        color: white;
+        margin: 0;
+        padding:0;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 40px;
+}

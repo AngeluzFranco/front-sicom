@@ -1,0 +1,96 @@
+/* Css para el menú lateral del sistema*/
+/* The side navigation menu */
+.sidenav {
+    height: 100%; /* 100% Full-height */
+    width: 0; /* 0 width - change this with JavaScript */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Stay on top */
+    top: 0;
+    left: 0;
+    background-color: #2a3f54;/*#00458b; /* Black*/
+    overflow-x: hidden; /* Disable horizontal scroll */
+    /* padding-top: 60px;  Place content 60px from the top */
+    transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+}
+
+ 
+/* The navigation menu links */
+.sidenav li{
+    padding-left: 25px;
+    padding-bottom:1px;
+    font-size: 19px;
+    color: white;
+    display:block;
+    transition: 0.3s;
+    list-style: none;
+}
+.aaa {
+    background-color:pink;
+    font-size:50px;
+}
+.sidenav ul{
+    padding-left: 22px;
+     padding-bottom:1px;
+    font-size: 19px;
+    color:  #ecf0f1;
+    display:block;
+    transition: 0.3s;
+    list-style: none;
+}
+
+.sidenav ul>li{
+    display:none;
+}
+
+.sidenav ul:hover li{
+    display:block;
+}
+
+.sidenav ul:hover{
+    color: #f9e79f ;
+}
+
+.sidenav a:focus{
+ color:  #2e86c1 ;   
+}
+.sidenav a:link, a:visited, a:active {
+    text-decoration:none;
+}
+
+ 
+/* Position and style the close button (top right corner) */
+.sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 25px;
+    margin-left: 50px;
+    color:yellow;
+}
+
+
+/* Add a black background color to the top navigation */
+.topnav {
+    background-color: transparent;
+    overflow: hidden;
+}
+ 
+/* Style the links inside the navigation bar */
+.topnav a {
+    float: left;
+    display: block;
+    color: black;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+}
+ 
+/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+@media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+}
+
+
+ 

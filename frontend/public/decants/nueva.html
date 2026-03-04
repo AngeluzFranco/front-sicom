@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4F46E5">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="icon" href="../img/icons/logo.jpg">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="../css/theme.css">
+    
+    <title>Decants - SICOM</title>
+    
+    <style>
+        .productos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: var(--space-4);
+            padding: var(--space-4);
+        }
+        
+        .producto-card {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color-light);
+            overflow: hidden;
+            transition: all var(--transition-base);
+        }
+        
+        .producto-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        
+        .producto-img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            background: var(--color-gray-100);
+            cursor: pointer;
+        }
+        
+        .producto-body {
+            padding: var(--space-3);
+        }
+        
+        .producto-nombre {
+            font-weight: var(--font-weight-semibold);
+            font-size: var(--font-size-sm);
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+            min-height: 40px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .producto-precio {
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+            font-size: var(--font-size-lg);
+        }
+        
+        .producto-stock {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+        
+        .producto-actions {
+            display: flex;
+            gap: var(--space-2);
+            margin-top: var(--space-3);
+            align-items: center;
+        }
+        
+        .producto-actions input[type="number"] {
+            width: 60px;
+            padding: var(--space-2);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+        
+        .producto-actions .btn {
+            flex: 1;
+        }
+        
+        /* Carrito flotante */
+        .carrito-flotante {
+            position: fixed;
+            bottom: var(--space-6);
+            right: var(--space-6);
+            z-index: 100;
+        }
+        
+        .carrito-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--color-danger);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .btn-carrito {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .btn-carrito:hover {
+            background: var(--color-primary-dark);
+            transform: scale(1.05);
+        }
+        
+        /* Paginación */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-2);
+            padding: var(--space-4);
+        }
+        
+        /* Buscador */
+        .search-bar {
+            padding: var(--space-4);
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color-light);
+            position: sticky;
+            top: 60px;
+            z-index: 10;
+        }
+        
+        .search-input {
+            width: 100%;
+            max-width: 400px;
+            padding: var(--space-3);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+        }
+        
+        /* Modal imagen */
+        .modal-imagen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-imagen.show {
+            display: flex;
+        }
+        
+        .modal-imagen img {
+            max-width: 90%;
+            max-height: 80%;
+            border-radius: var(--radius-lg);
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: var(--space-4);
+            right: var(--space-4);
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+        }
+        
+        /* Estados */
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: var(--space-10);
+            color: var(--text-muted);
+        }
+        
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-3) var(--space-4);
+            background: var(--color-gray-50);
+            border-bottom: 1px solid var(--border-color-light);
+        }
+        
+        /* Badge Decants */
+        .decants-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            margin-left: var(--space-2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Offline Banner -->
+    <div id="offlineBanner" class="offline-banner">
+        <i class="bi bi-wifi-off"></i> Sin conexión a internet
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="btn btn-ghost" id="sidebarToggle" aria-label="Toggle menu">
+            <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+        </button>
+        
+        <a class="navbar-brand" href="../dashboard.html">
+            <i class="bi bi-shop"></i>
+            <span>SICOM</span>
+        </a>
+        
+        <div class="navbar-spacer"></div>
+        
+        <div class="navbar-user">
+            <div class="navbar-info">
+                <i class="bi bi-building"></i>
+                <span id="negocioNombre">-</span>
+            </div>
+            <button class="btn btn-ghost btn-sm" id="btnLogout" title="Cerrar sesión">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <ul class="sidebar-nav">
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="../dashboard.html">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-divider"></li>
+            <li class="sidebar-header">Productos</li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="../ventas/nueva.html">
+                    <i class="bi bi-cart-plus"></i>
+                    <span>Nueva Venta</span>
+                </a>
+            </li>
+            <li class="sidebar-divider"></li>
+            <li class="sidebar-header">Decants</li>
+            <li class="sidebar-item">
+                <a class="sidebar-link active" href="nueva.html">
+                    <i class="bi bi-droplet"></i>
+                    <span>Decants</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="carrito.html">
+                    <i class="bi bi-cart3"></i>
+                    <span>Carrito Decants</span>
+                    <span class="badge badge-danger" id="carritoCountSidebar">0</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="bi bi-droplet"></i> Decants
+                <span class="decants-badge">Fragancias</span>
+            </h1>
+            <p class="page-subtitle">Selecciona decants para agregar al carrito</p>
+        </div>
+
+        <!-- Info Bar -->
+        <div class="info-bar">
+            <span id="infoNegocio">Cargando...</span>
+            <span id="infoPaginacion"></span>
+        </div>
+
+        <!-- Buscador -->
+        <div class="search-bar">
+            <input type="text" id="filtroProductos" class="search-input" placeholder="🔍 Buscar decants...">
+        </div>
+
+        <!-- Lista de productos -->
+        <div id="productosContainer" class="productos-grid">
+            <div class="loading-spinner">
+                <i class="bi bi-arrow-repeat spin" style="font-size: 2rem; color: var(--color-primary);"></i>
+            </div>
+        </div>
+
+        <!-- Paginación -->
+        <div class="pagination" id="paginacion"></div>
+    </main>
+
+    <!-- Carrito Flotante -->
+    <div class="carrito-flotante">
+        <button class="btn-carrito" id="btnCarritoFlotante" title="Ver carrito">
+            <i class="bi bi-cart3"></i>
+        </button>
+        <span class="carrito-badge" id="carritoCount">0</span>
+    </div>
+
+    <!-- Modal Imagen -->
+    <div class="modal-imagen" id="modalImagen">
+        <span class="modal-close" id="cerrarModal">&times;</span>
+        <img id="imgGrande" src="" alt="Producto">
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- JavaScript -->
+    <script src="../js/idb.js"></script>
+    <script src="../js/app.js"></script>
+    
+    <script>
+        // Estado local
+        let paginaActual = 1;
+        let productosData = [];
+        
+        // DOM Elements
+        const productosContainer = document.getElementById('productosContainer');
+        const paginacionEl = document.getElementById('paginacion');
+        const filtroInput = document.getElementById('filtroProductos');
+        const carritoCount = document.getElementById('carritoCount');
+        const carritoCountSidebar = document.getElementById('carritoCountSidebar');
+        const btnCarritoFlotante = document.getElementById('btnCarritoFlotante');
+        const modalImagen = document.getElementById('modalImagen');
+        const imgGrande = document.getElementById('imgGrande');
+        
+        // Cargar productos (decants)
+        async function cargarProductos(pagina = 1) {
+            paginaActual = pagina;
+            productosContainer.innerHTML = `
+                <div class="loading-spinner" style="grid-column: 1/-1;">
+                    <i class="bi bi-arrow-repeat spin" style="font-size: 2rem; color: var(--color-primary);"></i>
+                </div>
+            `;
+            
+            try {
+                // Usa el módulo Decants en lugar de Productos
+                const data = await SICOM.Decants.listar(pagina);
+                productosData = data.productos;
+                
+                // Actualizar info
+                document.getElementById('infoNegocio').textContent = `${data.negocio} - ${data.espacio}`;
+                actualizarCarritoCount(data.carrito_count);
+                
+                // Renderizar productos
+                renderizarProductos(productosData);
+                
+                // Renderizar paginación
+                renderizarPaginacion(data.paginacion);
+                
+            } catch (error) {
+                console.error('Error cargando decants:', error);
+                productosContainer.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <i class="bi bi-exclamation-triangle" style="font-size: 3rem; color: var(--color-warning);"></i>
+                        <p>Error al cargar decants</p>
+                        <button class="btn btn-primary" onclick="cargarProductos(${pagina})">Reintentar</button>
+                    </div>
+                `;
+            }
+        }
+        
+        // Renderizar productos
+        function renderizarProductos(productos) {
+            if (productos.length === 0) {
+                productosContainer.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <i class="bi bi-droplet" style="font-size: 3rem;"></i>
+                        <p>No hay decants disponibles</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            productosContainer.innerHTML = productos.map(p => `
+                <div class="producto-card" data-nombre="${p.descripcion.toLowerCase()}">
+                    <img class="producto-img" 
+                         src="${SICOM.APP_CONFIG.apiBaseUrl}/uploads/productos/${p.imagen}"
+                         alt="${p.descripcion}"
+                         onerror="this.src='${SICOM.APP_CONFIG.apiBaseUrl}/uploads/productos/logoPI.png'"
+                         data-cod="${p.cod_producto}">
+                    <div class="producto-body">
+                        <div class="producto-nombre">${p.descripcion}</div>
+                        <div class="producto-precio">${SICOM.Utils.formatCurrency(p.precio_venta)}</div>
+                        <div class="producto-stock">Stock: ${p.cantidad}</div>
+                        <div class="producto-actions">
+                            <input type="number" id="cant-${p.cod_producto}" value="1" min="1" max="${p.cantidad}">
+                            <button class="btn btn-primary btn-sm" onclick="agregarAlCarrito(${p.cod_producto})" ${p.cantidad <= 0 ? 'disabled' : ''}>
+                                <i class="bi bi-cart-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Eventos de clic en imagen
+            productosContainer.querySelectorAll('.producto-img').forEach(img => {
+                img.addEventListener('click', () => {
+                    imgGrande.src = img.src;
+                    modalImagen.classList.add('show');
+                });
+            });
+        }
+        
+        // Renderizar paginación
+        function renderizarPaginacion(pag) {
+            let html = '';
+            
+            if (pag.hay_anterior) {
+                html += `<button class="btn btn-outline btn-sm" onclick="cargarProductos(${pag.pagina_actual - 1})">
+                    <i class="bi bi-chevron-left"></i> Anterior
+                </button>`;
+            }
+            
+            html += `<span class="btn btn-ghost btn-sm">Página ${pag.pagina_actual}</span>`;
+            
+            if (pag.hay_siguiente) {
+                html += `<button class="btn btn-outline btn-sm" onclick="cargarProductos(${pag.pagina_actual + 1})">
+                    Siguiente <i class="bi bi-chevron-right"></i>
+                </button>`;
+            }
+            
+            paginacionEl.innerHTML = html;
+            document.getElementById('infoPaginacion').textContent = `Página ${pag.pagina_actual}`;
+        }
+        
+        // Agregar al carrito (usa Decants)
+        async function agregarAlCarrito(codProducto) {
+            const cantidadInput = document.getElementById(`cant-${codProducto}`);
+            const cantidad = parseInt(cantidadInput.value) || 1;
+            
+            try {
+                const result = await SICOM.Decants.agregarAlCarrito(codProducto, cantidad);
+                actualizarCarritoCount(result.carrito_count);
+                SICOM.UI.toast('Decant agregado al carrito', 'success');
+                
+                // Reset cantidad
+                cantidadInput.value = 1;
+            } catch (error) {
+                console.error('Error agregando al carrito:', error);
+                SICOM.UI.toast('Error al agregar decant', 'error');
+            }
+        }
+        
+        // Actualizar contador de carrito
+        function actualizarCarritoCount(count) {
+            carritoCount.textContent = count;
+            carritoCountSidebar.textContent = count;
+            
+            if (count > 0) {
+                carritoCount.style.display = 'flex';
+            } else {
+                carritoCount.style.display = 'none';
+            }
+        }
+        
+        // Filtrar productos
+        filtroInput.addEventListener('keyup', function() {
+            const filtro = this.value.toLowerCase();
+            const cards = productosContainer.querySelectorAll('.producto-card');
+            
+            cards.forEach(card => {
+                const nombre = card.dataset.nombre || '';
+                card.style.display = nombre.includes(filtro) ? '' : 'none';
+            });
+        });
+        
+        // Ir al carrito
+        btnCarritoFlotante.addEventListener('click', () => {
+            window.location.href = 'carrito.html';
+        });
+        
+        // Cerrar modal imagen
+        document.getElementById('cerrarModal').addEventListener('click', () => {
+            modalImagen.classList.remove('show');
+        });
+        
+        modalImagen.addEventListener('click', (e) => {
+            if (e.target === modalImagen) {
+                modalImagen.classList.remove('show');
+            }
+        });
+        
+        // Sidebar toggle
+        function initSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('show');
+            });
+            
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('show');
+            });
+        }
+        
+        // Logout
+        document.getElementById('btnLogout').addEventListener('click', async () => {
+            if (confirm('¿Deseas cerrar la sesión?')) {
+                try {
+                    await SICOM.Auth.logout();
+                } catch (error) {
+                    console.error('Error en logout:', error);
+                }
+            }
+        });
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            const session = SICOM.Session.getData();
+            if (session) {
+                document.getElementById('negocioNombre').textContent = session.negocio || '-';
+            }
+            
+            initSidebar();
+            cargarProductos(1);
+        });
+    </script>
+</body>
+</html>

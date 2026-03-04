@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4F46E5">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="icon" href="../img/icons/logo.jpg">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="../css/theme.css">
+    
+    <title>Detalle Venta Decants - SICOM</title>
+    
+    <style>
+        .detalle-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: var(--space-4);
+        }
+        
+        /* Ticket style */
+        .ticket {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+        
+        .ticket-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: var(--space-6);
+            text-align: center;
+        }
+        
+        .ticket-header h2 {
+            margin: 0;
+            font-size: var(--font-size-xl);
+        }
+        
+        .ticket-header .folio {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            margin-top: var(--space-2);
+        }
+        
+        .ticket-body {
+            padding: var(--space-6);
+        }
+        
+        .ticket-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-3);
+            margin-bottom: var(--space-6);
+            padding-bottom: var(--space-6);
+            border-bottom: 2px dashed var(--border-color-light);
+        }
+        
+        .ticket-info-item {
+            text-align: center;
+        }
+        
+        .ticket-info-label {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        
+        .ticket-info-value {
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-primary);
+        }
+        
+        /* Tabla de productos */
+        .ticket-items {
+            width: 100%;
+            margin-bottom: var(--space-6);
+        }
+        
+        .ticket-items th {
+            text-align: left;
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            padding: var(--space-2) 0;
+            border-bottom: 1px solid var(--border-color-light);
+        }
+        
+        .ticket-items td {
+            padding: var(--space-3) 0;
+            border-bottom: 1px solid var(--border-color-light);
+        }
+        
+        .ticket-items .text-right {
+            text-align: right;
+        }
+        
+        /* Totales */
+        .ticket-totals {
+            background: var(--bg-muted);
+            margin: calc(var(--space-6) * -1);
+            margin-top: var(--space-4);
+            padding: var(--space-6);
+        }
+        
+        .ticket-total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--space-2) 0;
+        }
+        
+        .ticket-total-row.grand {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            border-top: 2px solid var(--border-color);
+            margin-top: var(--space-3);
+            padding-top: var(--space-3);
+        }
+        
+        .ticket-total-row.grand .total-value {
+            color: var(--color-primary);
+            font-size: var(--font-size-2xl);
+        }
+        
+        /* Acciones */
+        .ticket-actions {
+            padding: var(--space-6);
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border-color-light);
+        }
+        
+        .email-form {
+            display: flex;
+            gap: var(--space-2);
+            margin-bottom: var(--space-4);
+        }
+        
+        .email-form input {
+            flex: 1;
+            padding: var(--space-3);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: var(--space-3);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        /* QR Section */
+        .qr-section {
+            text-align: center;
+            padding: var(--space-4);
+            border-top: 2px dashed var(--border-color-light);
+            margin-top: var(--space-4);
+        }
+        
+        .qr-section img {
+            max-width: 150px;
+        }
+        
+        /* Badge Decants */
+        .decants-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-sm);
+            display: inline-block;
+            margin-top: var(--space-2);
+        }
+        
+        /* Loading */
+        .loading-state {
+            text-align: center;
+            padding: var(--space-10);
+        }
+        
+        /* Responsive */
+        @media (max-width: 640px) {
+            .ticket-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .email-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Offline Banner -->
+    <div id="offlineBanner" class="offline-banner">
+        <i class="bi bi-wifi-off"></i> Sin conexión a internet
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="btn btn-ghost" id="sidebarToggle" aria-label="Toggle menu">
+            <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+        </button>
+        
+        <a class="navbar-brand" href="../dashboard.html">
+            <i class="bi bi-shop"></i>
+            <span>SICOM</span>
+        </a>
+        
+        <div class="navbar-spacer"></div>
+        
+        <div class="navbar-user">
+            <div class="navbar-info">
+                <i class="bi bi-building"></i>
+                <span id="negocioNombre">-</span>
+            </div>
+            <button class="btn btn-ghost btn-sm" id="btnLogout" title="Cerrar sesión">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <ul class="sidebar-nav">
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="../dashboard.html">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-divider"></li>
+            <li class="sidebar-header">Decants</li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="nueva.html">
+                    <i class="bi bi-droplet"></i>
+                    <span>Decants</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="carrito.html">
+                    <i class="bi bi-cart3"></i>
+                    <span>Carrito Decants</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="detalle-container">
+            <div id="ticketContent">
+                <div class="loading-state">
+                    <i class="bi bi-arrow-repeat spin" style="font-size: 3rem; color: var(--color-primary);"></i>
+                    <p>Cargando detalle de venta...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- JavaScript -->
+    <script src="../js/idb.js"></script>
+    <script src="../js/app.js"></script>
+    
+    <script>
+        // Obtener parámetro de URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const codMovimiento = urlParams.get('mov');
+        
+        // DOM
+        const ticketContent = document.getElementById('ticketContent');
+        
+        // Cargar detalle de venta (usa VentasDecants)
+        async function cargarDetalle() {
+            if (!codMovimiento) {
+                ticketContent.innerHTML = `
+                    <div class="loading-state">
+                        <i class="bi bi-exclamation-triangle" style="font-size: 3rem; color: var(--color-warning);"></i>
+                        <h3>Movimiento no especificado</h3>
+                        <a href="nueva.html" class="btn btn-primary">Ir a decants</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                const data = await SICOM.VentasDecants.obtenerDetalle(codMovimiento);
+                renderizarTicket(data);
+            } catch (error) {
+                console.error('Error cargando detalle:', error);
+                ticketContent.innerHTML = `
+                    <div class="loading-state">
+                        <i class="bi bi-exclamation-triangle" style="font-size: 3rem; color: var(--color-danger);"></i>
+                        <h3>Error al cargar el detalle</h3>
+                        <button class="btn btn-primary" onclick="cargarDetalle()">Reintentar</button>
+                    </div>
+                `;
+            }
+        }
+        
+        // Renderizar ticket
+        function renderizarTicket(data) {
+            const venta = data.venta;
+            const items = data.items || [];
+            const totalesPorForma = data.totales_forma_pago || {};
+            
+            ticketContent.innerHTML = `
+                <div class="ticket">
+                    <div class="ticket-header">
+                        <h2><i class="bi bi-check-circle"></i> Venta Completada</h2>
+                        <div class="folio">Folio #${venta.cod_movimiento}</div>
+                        <span class="decants-badge">Decants</span>
+                    </div>
+                    
+                    <div class="ticket-body">
+                        <div class="ticket-info">
+                            <div class="ticket-info-item">
+                                <div class="ticket-info-label">Fecha</div>
+                                <div class="ticket-info-value">${formatearFecha(venta.fecha)}</div>
+                            </div>
+                            <div class="ticket-info-item">
+                                <div class="ticket-info-label">Vendedor</div>
+                                <div class="ticket-info-value">${venta.vendedor || '-'}</div>
+                            </div>
+                            <div class="ticket-info-item">
+                                <div class="ticket-info-label">Negocio</div>
+                                <div class="ticket-info-value">${venta.negocio || '-'}</div>
+                            </div>
+                            <div class="ticket-info-item">
+                                <div class="ticket-info-label">Espacio</div>
+                                <div class="ticket-info-value">${venta.espacio || '-'}</div>
+                            </div>
+                        </div>
+                        
+                        <table class="ticket-items">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th class="text-right">Cant.</th>
+                                    <th class="text-right">P.Unit</th>
+                                    <th class="text-right">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${items.map(item => `
+                                    <tr>
+                                        <td>${item.nombre}</td>
+                                        <td class="text-right">${item.cantidad}</td>
+                                        <td class="text-right">${SICOM.Utils.formatCurrency(item.precio_unitario)}</td>
+                                        <td class="text-right">${SICOM.Utils.formatCurrency(item.subtotal)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        
+                        <div class="ticket-totals">
+                            ${Object.entries(totalesPorForma).map(([forma, total]) => `
+                                <div class="ticket-total-row">
+                                    <span>${getNombreFormaPago(forma)}:</span>
+                                    <span>${SICOM.Utils.formatCurrency(total)}</span>
+                                </div>
+                            `).join('')}
+                            
+                            ${venta.descuento > 0 ? `
+                                <div class="ticket-total-row" style="color: var(--color-success);">
+                                    <span>Descuento cupón:</span>
+                                    <span>-${SICOM.Utils.formatCurrency(venta.descuento)}</span>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="ticket-total-row grand">
+                                <span>TOTAL:</span>
+                                <span class="total-value">${SICOM.Utils.formatCurrency(venta.total)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${data.qr_url ? `
+                        <div class="qr-section">
+                            <p style="font-size: var(--font-size-sm); color: var(--text-muted);">Escanea para ver tu ticket</p>
+                            <img src="${data.qr_url}" alt="QR Code">
+                        </div>
+                    ` : ''}
+                    
+                    <div class="ticket-actions">
+                        <h4 style="margin-bottom: var(--space-3);">📧 Enviar ticket por correo</h4>
+                        <div class="email-form">
+                            <input type="email" id="emailInput" placeholder="correo@ejemplo.com">
+                            <button class="btn btn-primary" id="btnEnviarTicket">
+                                <i class="bi bi-envelope"></i> Enviar
+                            </button>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn btn-outline" onclick="window.print()">
+                                <i class="bi bi-printer"></i> Imprimir
+                            </button>
+                            <a href="nueva.html" class="btn btn-success">
+                                <i class="bi bi-droplet"></i> Nueva Compra
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Agregar listener para enviar ticket (usa VentasDecants)
+            document.getElementById('btnEnviarTicket').addEventListener('click', enviarTicket);
+        }
+        
+        // Enviar ticket por correo (usa VentasDecants)
+        async function enviarTicket() {
+            const email = document.getElementById('emailInput').value.trim();
+            
+            if (!email || !validarEmail(email)) {
+                SICOM.UI.toast('Ingresa un correo válido', 'warning');
+                return;
+            }
+            
+            const btn = document.getElementById('btnEnviarTicket');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Enviando...';
+            
+            try {
+                await SICOM.VentasDecants.enviarTicket(codMovimiento, email);
+                SICOM.UI.toast('Ticket enviado correctamente', 'success');
+                document.getElementById('emailInput').value = '';
+            } catch (error) {
+                console.error('Error enviando ticket:', error);
+                SICOM.UI.toast('Error al enviar el ticket', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-envelope"></i> Enviar';
+            }
+        }
+        
+        // Helpers
+        function formatearFecha(fecha) {
+            if (!fecha) return '-';
+            const d = new Date(fecha);
+            return d.toLocaleDateString('es-MX', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        function getNombreFormaPago(codigo) {
+            const nombres = {
+                'EFE': 'Efectivo',
+                'TDC': 'T. Crédito',
+                'TDD': 'T. Débito'
+            };
+            return nombres[codigo] || codigo;
+        }
+        
+        function validarEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+        
+        // Sidebar toggle
+        function initSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('show');
+            });
+            
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('show');
+            });
+        }
+        
+        // Logout
+        document.getElementById('btnLogout').addEventListener('click', async () => {
+            if (confirm('¿Deseas cerrar la sesión?')) {
+                try {
+                    await SICOM.Auth.logout();
+                } catch (error) {
+                    console.error('Error en logout:', error);
+                }
+            }
+        });
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            const session = SICOM.Session.getData();
+            if (session) {
+                document.getElementById('negocioNombre').textContent = session.negocio || '-';
+            }
+            
+            initSidebar();
+            cargarDetalle();
+        });
+    </script>
+</body>
+</html>

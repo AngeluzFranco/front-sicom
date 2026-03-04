@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4F46E5">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="icon" href="../img/icons/logo.jpg">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="../css/theme.css">
+    
+    <title>Ingresos por Día de Semana - SICOM</title>
+    
+    <style>
+        .reportes-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: var(--space-4);
+        }
+        
+        .form-panel {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color-light);
+            padding: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-4);
+            align-items: flex-end;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-2);
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: var(--space-3);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+        }
+        
+        .chart-container {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color-light);
+            padding: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+        
+        .table-wrapper {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color-light);
+            overflow: hidden;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            background: var(--bg-muted);
+            padding: var(--space-3) var(--space-4);
+            text-align: left;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color-light);
+        }
+        
+        .data-table td {
+            padding: var(--space-3) var(--space-4);
+            border-bottom: 1px solid var(--border-color-light);
+        }
+        
+        .data-table tbody tr:hover {
+            background: var(--bg-muted);
+        }
+        
+        .total-row {
+            background: var(--color-primary) !important;
+            color: white;
+        }
+        
+        .total-row td {
+            border-bottom: none;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: var(--space-8);
+            color: var(--text-muted);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: var(--space-4);
+        }
+        
+        .stat-total {
+            background: linear-gradient(135deg, var(--color-primary), #6366f1);
+            color: white;
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            text-align: center;
+            margin-bottom: var(--space-6);
+        }
+        
+        .stat-total .value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+        }
+        
+        .stat-total .label {
+            font-size: var(--font-size-sm);
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <!-- Offline Banner -->
+    <div id="offlineBanner" class="offline-banner">
+        <i class="bi bi-wifi-off"></i> Sin conexión a internet
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="btn btn-ghost" id="sidebarToggle" aria-label="Toggle menu">
+            <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+        </button>
+        
+        <a class="navbar-brand" href="../dashboard.html">
+            <i class="bi bi-shop"></i>
+            <span>SICOM</span>
+        </a>
+        
+        <div class="navbar-spacer"></div>
+        
+        <div class="navbar-user">
+            <div class="navbar-info">
+                <i class="bi bi-building"></i>
+                <span id="negocioNombre">-</span>
+            </div>
+            <button class="btn btn-ghost btn-sm" id="btnLogout" title="Cerrar sesión">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <ul class="sidebar-nav">
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="../dashboard.html">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-divider"></li>
+            <li class="sidebar-header">Reportes</li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="index.html">
+                    <i class="bi bi-graph-up"></i>
+                    <span>Menú Reportes</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="ventas-dia.html">
+                    <i class="bi bi-calendar-day"></i>
+                    <span>Ventas por Día</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="ventas-rango.html">
+                    <i class="bi bi-calendar-range"></i>
+                    <span>Ventas por Rango</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="ganancias.html">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Ganancias</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link active" href="ingreso-dia.html">
+                    <i class="bi bi-bar-chart-line"></i>
+                    <span>Ingresos por Día</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="promedio.html">
+                    <i class="bi bi-calculator"></i>
+                    <span>Promedio Ventas</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="reportes-container">
+            <div class="page-header">
+                <h1 class="page-title">
+                    <i class="bi bi-bar-chart-line"></i> Ingresos por Día de la Semana
+                </h1>
+            </div>
+
+            <!-- Formulario -->
+            <div class="form-panel">
+                <form id="formFiltros">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fecha1">Fecha Inicio</label>
+                            <input type="date" id="fecha1" name="fecha1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fecha2">Fecha Fin</label>
+                            <input type="date" id="fecha2" name="fecha2" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="usuario">Empleado</label>
+                            <select id="usuario" name="usuario" required>
+                                <option value="">-- Selecciona --</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 0;">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i> Ver Reporte
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Resultados -->
+            <div id="resultados" style="display: none;">
+                <!-- Total -->
+                <div class="stat-total">
+                    <div class="value" id="totalGeneral">$0</div>
+                    <div class="label">Total de Ingresos</div>
+                </div>
+                
+                <!-- Gráfica -->
+                <div class="chart-container">
+                    <canvas id="graficaIngresos" height="300"></canvas>
+                </div>
+
+                <!-- Tabla -->
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Día</th>
+                                <th>Forma de Pago</th>
+                                <th style="text-align: right;">Ingresos</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="table-wrapper empty-state" style="display: none;">
+                <i class="bi bi-inbox"></i>
+                <p>No se encontraron datos para los filtros seleccionados.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- JavaScript -->
+    <script src="../js/idb.js"></script>
+    <script src="../js/app.js"></script>
+    
+    <script>
+        // Variables
+        let chartInstance = null;
+        
+        // DOM Elements
+        const formFiltros = document.getElementById('formFiltros');
+        const selectUsuario = document.getElementById('usuario');
+        
+        // Cargar formulario
+        async function cargarFormulario() {
+            try {
+                const data = await SICOM.ReporteIngresoPorDia.obtenerFormulario();
+                
+                // Usuarios
+                selectUsuario.innerHTML = '<option value="">-- Selecciona --</option>';
+                (data.usuarios || []).forEach(u => {
+                    const option = document.createElement('option');
+                    option.value = u.cod_usuario;
+                    option.textContent = u.nombre;
+                    selectUsuario.appendChild(option);
+                });
+                
+                // Fechas por defecto (mes actual)
+                const hoy = new Date();
+                const primerDia = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+                document.getElementById('fecha1').value = primerDia.toISOString().split('T')[0];
+                document.getElementById('fecha2').value = hoy.toISOString().split('T')[0];
+                
+                document.getElementById('negocioNombre').textContent = data.negocio || '-';
+                
+            } catch (error) {
+                console.error('Error:', error);
+                SICOM.UI.toast('Error al cargar datos', 'error');
+            }
+        }
+        
+        // Consultar
+        formFiltros.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const usuario = selectUsuario.value;
+            if (!usuario) {
+                SICOM.UI.toast('Selecciona un empleado', 'warning');
+                return;
+            }
+            
+            const btn = formFiltros.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Consultando...';
+            
+            try {
+                const data = await SICOM.ReporteIngresoPorDia.consultar(
+                    document.getElementById('fecha1').value,
+                    document.getElementById('fecha2').value,
+                    usuario
+                );
+                
+                if (data.ingresos && data.ingresos.length > 0) {
+                    mostrarResultados(data);
+                } else {
+                    document.getElementById('resultados').style.display = 'none';
+                    document.getElementById('emptyState').style.display = 'block';
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                SICOM.UI.toast('Error al consultar', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-search"></i> Ver Reporte';
+            }
+        });
+        
+        // Mostrar resultados
+        function mostrarResultados(data) {
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('resultados').style.display = 'block';
+            
+            // Total
+            document.getElementById('totalGeneral').textContent = SICOM.Utils.formatCurrency(data.gran_total);
+            
+            // Tabla
+            const tbody = document.getElementById('tablaBody');
+            tbody.innerHTML = '';
+            
+            data.ingresos.forEach(i => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${i.dia_es}</td>
+                    <td>${i.forma_pago}</td>
+                    <td style="text-align: right;">${SICOM.Utils.formatCurrency(i.ingreso)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Total row
+            const totalRow = document.createElement('tr');
+            totalRow.className = 'total-row';
+            totalRow.innerHTML = `
+                <td colspan="2"><strong>TOTAL</strong></td>
+                <td style="text-align: right;"><strong>${SICOM.Utils.formatCurrency(data.gran_total)}</strong></td>
+            `;
+            tbody.appendChild(totalRow);
+            
+            // Crear gráfica
+            crearGrafica(data.datos_grafica, data.dias_espanol);
+        }
+        
+        // Crear gráfica
+        function crearGrafica(datosGrafica, diasEspanol) {
+            const ctx = document.getElementById('graficaIngresos').getContext('2d');
+            
+            // Destruir gráfica anterior si existe
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+            
+            const diasOrden = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const labels = diasOrden.map(d => diasEspanol[d] || d);
+            
+            // Obtener todas las formas de pago
+            const formasPago = [...new Set(Object.values(datosGrafica).flatMap(Object.keys))];
+            
+            // Colores para las formas de pago
+            const colores = [
+                { bg: 'rgba(79, 70, 229, 0.7)', border: '#4F46E5' },
+                { bg: 'rgba(16, 185, 129, 0.7)', border: '#10B981' },
+                { bg: 'rgba(245, 158, 11, 0.7)', border: '#F59E0B' },
+                { bg: 'rgba(239, 68, 68, 0.7)', border: '#EF4444' },
+                { bg: 'rgba(99, 102, 241, 0.7)', border: '#6366F1' }
+            ];
+            
+            const datasets = formasPago.map((fp, index) => ({
+                label: fp,
+                data: diasOrden.map(d => datosGrafica[d]?.[fp] ?? 0),
+                backgroundColor: colores[index % colores.length].bg,
+                borderColor: colores[index % colores.length].border,
+                borderWidth: 2
+            }));
+            
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Ingresos por Día y Forma de Pago'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Sidebar
+        function initSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('show');
+            });
+            
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('show');
+            });
+        }
+        
+        // Logout
+        document.getElementById('btnLogout').addEventListener('click', async () => {
+            if (confirm('¿Deseas cerrar la sesión?')) {
+                try { await SICOM.Auth.logout(); } catch (e) { console.error(e); }
+            }
+        });
+        
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            const session = SICOM.Session.getData();
+            if (session) {
+                document.getElementById('negocioNombre').textContent = session.negocio || '-';
+            }
+            initSidebar();
+            cargarFormulario();
+        });
+    </script>
+</body>
+</html>

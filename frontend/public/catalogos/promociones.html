@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4F46E5">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="icon" href="../img/icons/logo.jpg">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="../css/theme.css">
+    
+    <title>Promociones - SICOM</title>
+    
+    <style>
+        .promociones-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-4);
+        }
+        
+        /* Panel de formulario */
+        .form-panel {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color-light);
+            padding: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+        
+        .form-panel h3 {
+            margin-bottom: var(--space-4);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-4);
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group label {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-2);
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: var(--space-3);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            font-family: inherit;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding-top: var(--space-6);
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: var(--space-3);
+            margin-top: var(--space-4);
+        }
+        
+        /* Tabla de promociones */
+        .table-wrapper {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color-light);
+            overflow: hidden;
+        }
+        
+        .promociones-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .promociones-table th {
+            background: var(--bg-muted);
+            padding: var(--space-4);
+            text-align: left;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color-light);
+        }
+        
+        .promociones-table td {
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--border-color-light);
+            vertical-align: middle;
+        }
+        
+        .promociones-table tbody tr:hover {
+            background: var(--bg-muted);
+        }
+        
+        .promociones-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+        
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--color-success);
+        }
+        
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--color-danger);
+        }
+        
+        /* Producto display */
+        .producto-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .producto-codigo {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+        }
+        
+        .descripcion-cell {
+            max-width: 250px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* Acciones */
+        .row-actions {
+            display: flex;
+            gap: var(--space-2);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .table-wrapper {
+                overflow-x: auto;
+            }
+            
+            .promociones-table {
+                min-width: 900px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Offline Banner -->
+    <div id="offlineBanner" class="offline-banner">
+        <i class="bi bi-wifi-off"></i> Sin conexión a internet
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="btn btn-ghost" id="sidebarToggle" aria-label="Toggle menu">
+            <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+        </button>
+        
+        <a class="navbar-brand" href="../dashboard.html">
+            <i class="bi bi-shop"></i>
+            <span>SICOM</span>
+        </a>
+        
+        <div class="navbar-spacer"></div>
+        
+        <div class="navbar-user">
+            <div class="navbar-info">
+                <i class="bi bi-building"></i>
+                <span id="negocioNombre">-</span>
+            </div>
+            <button class="btn btn-ghost btn-sm" id="btnLogout" title="Cerrar sesión">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <ul class="sidebar-nav">
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="../dashboard.html">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-divider"></li>
+            <li class="sidebar-header">Catálogos</li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="index.html">
+                    <i class="bi bi-folder"></i>
+                    <span>Menú Catálogos</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="cupones.html">
+                    <i class="bi bi-ticket-perforated"></i>
+                    <span>Cupones</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link active" href="promociones.html">
+                    <i class="bi bi-percent"></i>
+                    <span>Promociones</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="promociones-container">
+            <div class="page-header">
+                <h1 class="page-title">
+                    <i class="bi bi-percent"></i> Catálogo de Promociones
+                </h1>
+            </div>
+
+            <!-- Formulario -->
+            <div class="form-panel">
+                <h3 id="formTitle"><i class="bi bi-plus-circle"></i> Agregar Promoción</h3>
+                <form id="formPromocion">
+                    <input type="hidden" id="modoForm" name="modo" value="insertar">
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="codPromocion">Código Promoción</label>
+                            <input type="text" id="codPromocion" name="cod_promocion" required placeholder="Ej: PROMO001">
+                        </div>
+                        <div class="form-group">
+                            <label for="codProducto">Producto</label>
+                            <select id="codProducto" name="cod_producto" required>
+                                <option value="">Seleccione un producto...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fechaInicio">Fecha Inicio</label>
+                            <input type="date" id="fechaInicio" name="fecha_inicio" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fechaFin">Fecha Fin</label>
+                            <input type="date" id="fechaFin" name="fecha_fin" required>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="activa" name="activa" checked>
+                            <label for="activa">Promoción Activa</label>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="descripcion">Descripción de la Promoción</label>
+                            <textarea id="descripcion" name="descripcion" placeholder="Describa la promoción (ej: 2x1, 20% de descuento, etc.)"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success" id="btnGuardar">
+                            <i class="bi bi-check-lg"></i> Guardar
+                        </button>
+                        <button type="button" class="btn btn-ghost" id="btnCancelar" style="display: none;">
+                            <i class="bi bi-x-lg"></i> Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabla de promociones -->
+            <div class="table-wrapper">
+                <table class="promociones-table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Producto</th>
+                            <th>Descripción</th>
+                            <th>Inicio</th>
+                            <th>Fin</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="promocionesTableBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px;">
+                                <i class="bi bi-arrow-repeat spin" style="font-size: 2rem; color: var(--color-primary);"></i>
+                                <p>Cargando promociones...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- JavaScript -->
+    <script src="../js/idb.js"></script>
+    <script src="../js/app.js"></script>
+    
+    <script>
+        // Estado
+        let promocionesData = [];
+        let productosData = [];
+        let editando = false;
+        let claveOriginal = { cod_promocion: null, cod_producto: null };
+        
+        // DOM Elements
+        const formPromocion = document.getElementById('formPromocion');
+        const formTitle = document.getElementById('formTitle');
+        const btnCancelar = document.getElementById('btnCancelar');
+        const promocionesTableBody = document.getElementById('promocionesTableBody');
+        const selectProducto = document.getElementById('codProducto');
+        
+        // Cargar datos
+        async function cargarDatos() {
+            try {
+                const data = await SICOM.Promociones.listar();
+                promocionesData = data.promociones || [];
+                productosData = data.productos || [];
+                
+                llenarSelectProductos();
+                renderizarPromociones();
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+                promocionesTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px;">
+                            <i class="bi bi-exclamation-triangle" style="font-size: 2rem; color: var(--color-danger);"></i>
+                            <p>Error al cargar promociones</p>
+                            <button class="btn btn-primary btn-sm" onclick="cargarDatos()">Reintentar</button>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // Llenar select de productos
+        function llenarSelectProductos() {
+            selectProducto.innerHTML = '<option value="">Seleccione un producto...</option>';
+            productosData.forEach(prod => {
+                const option = document.createElement('option');
+                option.value = prod.cod_producto;
+                option.textContent = `${prod.cod_producto} - ${prod.descripcion}`;
+                selectProducto.appendChild(option);
+            });
+        }
+        
+        // Renderizar tabla
+        function renderizarPromociones() {
+            if (promocionesData.length === 0) {
+                promocionesTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px;">
+                            <i class="bi bi-percent" style="font-size: 2rem; color: var(--text-muted);"></i>
+                            <p>No hay promociones registradas</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            promocionesTableBody.innerHTML = promocionesData.map(promo => {
+                const producto = productosData.find(p => p.cod_producto == promo.cod_producto);
+                const nombreProducto = producto ? producto.descripcion : promo.cod_producto;
+                
+                return `
+                    <tr data-cod-promo="${promo.cod_promocion}" data-cod-prod="${promo.cod_producto}">
+                        <td><strong>${promo.cod_promocion}</strong></td>
+                        <td>
+                            <div class="producto-info">
+                                <span>${nombreProducto}</span>
+                                <span class="producto-codigo">(${promo.cod_producto})</span>
+                            </div>
+                        </td>
+                        <td class="descripcion-cell" title="${promo.descripcion || ''}">${promo.descripcion || '-'}</td>
+                        <td>${formatearFecha(promo.fecha_inicio)}</td>
+                        <td>${formatearFecha(promo.fecha_fin)}</td>
+                        <td>
+                            <span class="badge ${promo.activa == 1 ? 'badge-success' : 'badge-danger'}">
+                                ${promo.activa == 1 ? 'Activa' : 'Inactiva'}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="row-actions">
+                                <button class="btn btn-warning btn-sm" onclick="editarPromocion('${promo.cod_promocion}', '${promo.cod_producto}')" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="eliminarPromocion('${promo.cod_promocion}', '${promo.cod_producto}')" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // Formatear fecha
+        function formatearFecha(fecha) {
+            if (!fecha) return '-';
+            const d = new Date(fecha + 'T00:00:00');
+            return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+        
+        // Guardar promoción
+        formPromocion.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const datos = {
+                cod_promocion: document.getElementById('codPromocion').value,
+                cod_producto: document.getElementById('codProducto').value,
+                activa: document.getElementById('activa').checked ? 1 : 0,
+                fecha_inicio: document.getElementById('fechaInicio').value,
+                fecha_fin: document.getElementById('fechaFin').value,
+                descripcion: document.getElementById('descripcion').value
+            };
+            
+            const btn = document.getElementById('btnGuardar');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Guardando...';
+            
+            try {
+                if (editando) {
+                    // Pasar claves originales para la edición
+                    datos.cod_promocion_original = claveOriginal.cod_promocion;
+                    datos.cod_producto_original = claveOriginal.cod_producto;
+                    await SICOM.Promociones.actualizar(datos);
+                    SICOM.UI.toast('Promoción actualizada correctamente', 'success');
+                } else {
+                    await SICOM.Promociones.insertar(datos);
+                    SICOM.UI.toast('Promoción agregada correctamente', 'success');
+                }
+                
+                limpiarFormulario();
+                cargarDatos();
+            } catch (error) {
+                console.error('Error guardando promoción:', error);
+                SICOM.UI.toast('Error al guardar promoción', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-lg"></i> Guardar';
+            }
+        });
+        
+        // Editar promoción
+        async function editarPromocion(codPromocion, codProducto) {
+            try {
+                const data = await SICOM.Promociones.obtener(codPromocion, codProducto);
+                
+                if (!data.promocion) {
+                    SICOM.UI.toast('No se encontró la promoción', 'error');
+                    return;
+                }
+                
+                const promo = data.promocion;
+                
+                editando = true;
+                claveOriginal = { cod_promocion: codPromocion, cod_producto: codProducto };
+                
+                document.getElementById('codPromocion').value = promo.cod_promocion;
+                document.getElementById('codProducto').value = promo.cod_producto;
+                document.getElementById('activa').checked = promo.activa == 1;
+                document.getElementById('fechaInicio').value = promo.fecha_inicio;
+                document.getElementById('fechaFin').value = promo.fecha_fin;
+                document.getElementById('descripcion').value = promo.descripcion || '';
+                
+                // Deshabilitar campos clave en modo edición
+                document.getElementById('codPromocion').readOnly = true;
+                document.getElementById('codProducto').disabled = true;
+                
+                formTitle.innerHTML = '<i class="bi bi-pencil"></i> Editar Promoción';
+                btnCancelar.style.display = 'inline-flex';
+                
+                formPromocion.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                console.error('Error obteniendo promoción:', error);
+                SICOM.UI.toast('Error al cargar promoción', 'error');
+            }
+        }
+        
+        // Eliminar promoción
+        async function eliminarPromocion(codPromocion, codProducto) {
+            if (!confirm(`¿Eliminar la promoción "${codPromocion}" del producto ${codProducto}?`)) return;
+            
+            try {
+                await SICOM.Promociones.eliminar(codPromocion, codProducto);
+                SICOM.UI.toast('Promoción eliminada', 'success');
+                cargarDatos();
+            } catch (error) {
+                console.error('Error eliminando promoción:', error);
+                SICOM.UI.toast('Error al eliminar promoción', 'error');
+            }
+        }
+        
+        // Cancelar edición
+        btnCancelar.addEventListener('click', limpiarFormulario);
+        
+        // Limpiar formulario
+        function limpiarFormulario() {
+            formPromocion.reset();
+            document.getElementById('activa').checked = true;
+            editando = false;
+            claveOriginal = { cod_promocion: null, cod_producto: null };
+            
+            document.getElementById('codPromocion').readOnly = false;
+            document.getElementById('codProducto').disabled = false;
+            
+            formTitle.innerHTML = '<i class="bi bi-plus-circle"></i> Agregar Promoción';
+            btnCancelar.style.display = 'none';
+        }
+        
+        // Sidebar toggle
+        function initSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('show');
+            });
+            
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('show');
+            });
+        }
+        
+        // Logout
+        document.getElementById('btnLogout').addEventListener('click', async () => {
+            if (confirm('¿Deseas cerrar la sesión?')) {
+                try {
+                    await SICOM.Auth.logout();
+                } catch (error) {
+                    console.error('Error en logout:', error);
+                }
+            }
+        });
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            const session = SICOM.Session.getData();
+            if (session) {
+                document.getElementById('negocioNombre').textContent = session.negocio || '-';
+            }
+            
+            initSidebar();
+            cargarDatos();
+        });
+    </script>
+</body>
+</html>

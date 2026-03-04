@@ -1,0 +1,112 @@
+# ============================================
+# SICOM - Apache Configuration
+# White Label Error Pages Integration
+# ============================================
+
+# Enable RewriteEngine
+RewriteEngine On
+RewriteBase /
+
+# ============================================
+# CUSTOM ERROR PAGES
+# ============================================
+ErrorDocument 400 /errors/error.html
+ErrorDocument 401 /errors/error.html
+ErrorDocument 403 /errors/error.html
+ErrorDocument 404 /errors/404.html
+ErrorDocument 500 /errors/500.html
+ErrorDocument 502 /errors/502.html
+ErrorDocument 503 /errors/503.html
+ErrorDocument 504 /errors/504.html
+
+# ============================================
+# SECURITY HEADERS
+# ============================================
+<IfModule mod_headers.c>
+    # Prevent MIME type sniffing
+    Header set X-Content-Type-Options "nosniff"
+    
+    # XSS Protection
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Clickjacking protection
+    Header set X-Frame-Options "SAMEORIGIN"
+    
+    # Referrer Policy
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ============================================
+# CACHE CONTROL
+# ============================================
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # HTML - no cache
+    ExpiresByType text/html "access plus 0 seconds"
+    
+    # CSS/JS - 1 week
+    ExpiresByType text/css "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+    ExpiresByType text/javascript "access plus 1 week"
+    
+    # Images - 1 month
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 month"
+    
+    # Fonts - 1 month
+    ExpiresByType font/woff "access plus 1 month"
+    ExpiresByType font/woff2 "access plus 1 month"
+    ExpiresByType application/font-woff "access plus 1 month"
+    ExpiresByType application/font-woff2 "access plus 1 month"
+    
+    # Manifest
+    ExpiresByType application/manifest+json "access plus 1 day"
+</IfModule>
+
+# ============================================
+# GZIP COMPRESSION
+# ============================================
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE application/manifest+json
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ============================================
+# DENY DIRECT ACCESS TO SENSITIVE FILES
+# ============================================
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|sql|bak|config)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# ============================================
+# SERVE CORRECT MIME TYPES
+# ============================================
+<IfModule mod_mime.c>
+    AddType application/manifest+json .webmanifest .json
+    AddType text/cache-manifest .appcache
+    AddType image/webp .webp
+    AddType font/woff .woff
+    AddType font/woff2 .woff2
+</IfModule>
+
+# ============================================
+# PWA SERVICE WORKER HEADERS
+# ============================================
+<FilesMatch "sw\.js$">
+    <IfModule mod_headers.c>
+        Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
+        Header set Service-Worker-Allowed "/"
+    </IfModule>
+</FilesMatch>

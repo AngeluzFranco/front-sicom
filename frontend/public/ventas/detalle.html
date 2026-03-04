@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4F46E5">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="icon" href="../img/icons/logo.jpg">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="../css/theme.css">
+    
+    <title>Detalle de Venta - SICOM</title>
+    
+    <style>
+        .detalle-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: var(--space-4);
+        }
+        
+        .ticket {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color-light);
+            padding: var(--space-6);
+            margin-bottom: var(--space-4);
+        }
+        
+        .ticket-header {
+            text-align: center;
+            border-bottom: 2px dashed var(--border-color);
+            padding-bottom: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+        
+        .ticket-logo {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+        }
+        
+        .ticket-negocio {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            margin-top: var(--space-2);
+        }
+        
+        .ticket-info {
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+        }
+        
+        .ticket-mov {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+            margin-top: var(--space-2);
+        }
+        
+        .ticket-fecha {
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+        
+        /* Productos */
+        .ticket-productos {
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+        
+        .ticket-producto {
+            display: flex;
+            justify-content: space-between;
+            gap: var(--space-2);
+            padding: var(--space-2) 0;
+            border-bottom: 1px dotted var(--border-color-light);
+        }
+        
+        .ticket-producto:last-child {
+            border-bottom: none;
+        }
+        
+        .ticket-producto-nombre {
+            flex: 1;
+            font-size: var(--font-size-sm);
+        }
+        
+        .ticket-producto-cantidad {
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .ticket-producto-subtotal {
+            font-weight: var(--font-weight-semibold);
+            min-width: 80px;
+            text-align: right;
+        }
+        
+        /* Totales */
+        .ticket-totales {
+            margin-bottom: var(--space-4);
+        }
+        
+        .ticket-total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--space-1) 0;
+        }
+        
+        .ticket-total-row.total-final {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            padding-top: var(--space-3);
+            border-top: 2px solid var(--border-color);
+            color: var(--color-primary);
+        }
+        
+        /* Formas de pago */
+        .ticket-formas {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            padding: var(--space-3);
+            margin-bottom: var(--space-4);
+        }
+        
+        .ticket-formas-title {
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: var(--space-2);
+            font-size: var(--font-size-sm);
+        }
+        
+        .ticket-forma-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: var(--font-size-sm);
+            padding: var(--space-1) 0;
+        }
+        
+        /* Footer */
+        .ticket-footer {
+            text-align: center;
+            border-top: 2px dashed var(--border-color);
+            padding-top: var(--space-4);
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+        
+        /* Acciones */
+        .ticket-actions {
+            display: flex;
+            gap: var(--space-3);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        /* Email form */
+        .email-section {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color-light);
+            padding: var(--space-6);
+        }
+        
+        .email-form {
+            display: flex;
+            gap: var(--space-2);
+            margin-top: var(--space-3);
+        }
+        
+        .email-form input {
+            flex: 1;
+            padding: var(--space-3);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+        }
+        
+        .email-resultado {
+            margin-top: var(--space-2);
+            font-size: var(--font-size-sm);
+        }
+        
+        /* QR */
+        .qr-section {
+            text-align: center;
+            padding: var(--space-4);
+            border-top: 1px dashed var(--border-color);
+            margin-top: var(--space-4);
+        }
+        
+        .qr-image {
+            max-width: 150px;
+            margin: 0 auto;
+        }
+        
+        .qr-label {
+            font-size: var(--font-size-xs);
+            color: var(--text-muted);
+            margin-top: var(--space-2);
+        }
+        
+        /* Alert success */
+        .venta-exito {
+            background: var(--color-success-light, #d4edda);
+            border: 1px solid var(--color-success);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            text-align: center;
+            margin-bottom: var(--space-4);
+        }
+        
+        .venta-exito i {
+            font-size: 3rem;
+            color: var(--color-success);
+        }
+        
+        .venta-exito h3 {
+            color: var(--color-success);
+            margin-top: var(--space-2);
+        }
+        
+        @media print {
+            .navbar, .sidebar, .ticket-actions, .email-section, body > *:not(.main-content) {
+                display: none !important;
+            }
+            
+            .main-content {
+                padding: 0 !important;
+            }
+            
+            .ticket {
+                border: none;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Offline Banner -->
+    <div id="offlineBanner" class="offline-banner">
+        <i class="bi bi-wifi-off"></i> Sin conexión a internet
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="btn btn-ghost" id="sidebarToggle" aria-label="Toggle menu">
+            <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+        </button>
+        
+        <a class="navbar-brand" href="../dashboard.html">
+            <i class="bi bi-shop"></i>
+            <span>SICOM</span>
+        </a>
+        
+        <div class="navbar-spacer"></div>
+        
+        <div class="navbar-user">
+            <div class="navbar-info">
+                <i class="bi bi-building"></i>
+                <span id="negocioNombre">-</span>
+            </div>
+            <button class="btn btn-ghost btn-sm" id="btnLogout" title="Cerrar sesión">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <ul class="sidebar-nav">
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="../dashboard.html">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="nueva.html">
+                    <i class="bi bi-cart-plus"></i>
+                    <span>Nueva Venta</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="carrito.html">
+                    <i class="bi bi-cart3"></i>
+                    <span>Ver Carrito</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="bi bi-receipt"></i> Detalle de Venta
+            </h1>
+        </div>
+
+        <div class="detalle-container">
+            <!-- Mensaje de éxito (si viene de realizar venta) -->
+            <div class="venta-exito" id="ventaExito" style="display: none;">
+                <i class="bi bi-check-circle-fill"></i>
+                <h3>¡Venta realizada exitosamente!</h3>
+                <p>El ticket se muestra a continuación</p>
+            </div>
+            
+            <!-- Ticket -->
+            <div class="ticket" id="ticketContent">
+                <div class="loading-spinner" style="text-align: center; padding: 40px;">
+                    <i class="bi bi-arrow-repeat spin" style="font-size: 2rem; color: var(--color-primary);"></i>
+                    <p>Cargando detalle...</p>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="ticket-actions" id="ticketActions" style="display: none;">
+                <button class="btn btn-primary" onclick="window.print()">
+                    <i class="bi bi-printer"></i> Imprimir
+                </button>
+                <a href="nueva.html" class="btn btn-success">
+                    <i class="bi bi-cart-plus"></i> Nueva Venta
+                </a>
+            </div>
+
+            <!-- Enviar por Email -->
+            <div class="email-section" id="emailSection" style="display: none; margin-top: var(--space-4);">
+                <h4><i class="bi bi-envelope"></i> Enviar ticket por correo</h4>
+                <div class="email-form">
+                    <input type="email" id="emailInput" placeholder="correo@ejemplo.com">
+                    <button class="btn btn-primary" id="btnEnviarEmail">
+                        <i class="bi bi-send"></i> Enviar
+                    </button>
+                </div>
+                <div class="email-resultado" id="emailResultado"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- JavaScript -->
+    <script src="../js/idb.js"></script>
+    <script src="../js/app.js"></script>
+    
+    <script>
+        // Estado
+        let ventaData = null;
+        let codMovimiento = null;
+        
+        // Obtener código de movimiento de URL
+        function getCodMovimiento() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('mov');
+        }
+        
+        // Cargar detalle de venta
+        async function cargarDetalle() {
+            codMovimiento = getCodMovimiento();
+            
+            if (!codMovimiento) {
+                document.getElementById('ticketContent').innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <i class="bi bi-exclamation-triangle" style="font-size: 3rem; color: var(--color-warning);"></i>
+                        <h3>No se especificó número de venta</h3>
+                        <a href="nueva.html" class="btn btn-primary" style="margin-top: var(--space-4);">
+                            <i class="bi bi-cart-plus"></i> Nueva Venta
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Mostrar mensaje de éxito si viene de nueva venta
+            const fromSale = sessionStorage.getItem('ventaRealizada');
+            if (fromSale === codMovimiento) {
+                document.getElementById('ventaExito').style.display = 'block';
+                sessionStorage.removeItem('ventaRealizada');
+            }
+            
+            try {
+                const data = await SICOM.Ventas.obtenerDetalle(codMovimiento);
+                ventaData = data;
+                renderizarTicket(data);
+                
+                document.getElementById('ticketActions').style.display = 'flex';
+                document.getElementById('emailSection').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error cargando detalle:', error);
+                document.getElementById('ticketContent').innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <i class="bi bi-exclamation-triangle" style="font-size: 3rem; color: var(--color-danger);"></i>
+                        <h3>Error al cargar el detalle</h3>
+                        <p>${error.message || 'Venta no encontrada'}</p>
+                        <button class="btn btn-primary" onclick="cargarDetalle()" style="margin-top: var(--space-4);">
+                            <i class="bi bi-arrow-repeat"></i> Reintentar
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        // Renderizar ticket
+        function renderizarTicket(data) {
+            const { venta, detalle, totales_por_forma } = data;
+            
+            // Calcular total
+            const total = detalle.reduce((sum, item) => sum + parseFloat(item.subtotal), 0);
+            
+            let html = `
+                <div class="ticket-header">
+                    <div class="ticket-logo"><i class="bi bi-shop"></i> SICOM</div>
+                    <div class="ticket-negocio">${venta.negocio || 'Punto de Venta'}</div>
+                    <div class="ticket-info">
+                        Espacio: ${venta.espacio || '-'}<br>
+                        Vendedor: ${venta.vendedor || '-'}
+                    </div>
+                    <div class="ticket-mov">Venta #${venta.cod_movimiento}</div>
+                    <div class="ticket-fecha">${venta.fecha}</div>
+                </div>
+                
+                <div class="ticket-productos">
+                    <h5 style="margin-bottom: var(--space-2);">Productos</h5>
+                    ${detalle.map(item => `
+                        <div class="ticket-producto">
+                            <div class="ticket-producto-nombre">
+                                ${item.nombre}
+                                ${item.promocion ? `<br><small style="color: var(--color-success);">✨ ${item.promocion}</small>` : ''}
+                            </div>
+                            <div class="ticket-producto-cantidad">x${item.cantidad}</div>
+                            <div class="ticket-producto-subtotal">${SICOM.Utils.formatCurrency(item.subtotal)}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            // Totales por forma de pago
+            if (totales_por_forma && Object.keys(totales_por_forma).length > 0) {
+                const formasNombre = {
+                    'EFE': 'Efectivo',
+                    'TDC': 'Tarjeta Crédito',
+                    'TDD': 'Tarjeta Débito'
+                };
+                
+                html += `
+                    <div class="ticket-formas">
+                        <div class="ticket-formas-title">Desglose por forma de pago:</div>
+                        ${Object.entries(totales_por_forma).map(([forma, monto]) => `
+                            <div class="ticket-forma-row">
+                                <span>${formasNombre[forma] || forma}</span>
+                                <span>${SICOM.Utils.formatCurrency(monto)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            // Total
+            html += `
+                <div class="ticket-totales">
+                    ${venta.descuento > 0 ? `
+                        <div class="ticket-total-row">
+                            <span>Subtotal:</span>
+                            <span>${SICOM.Utils.formatCurrency(total + parseFloat(venta.descuento))}</span>
+                        </div>
+                        <div class="ticket-total-row" style="color: var(--color-success);">
+                            <span>Descuento:</span>
+                            <span>-${SICOM.Utils.formatCurrency(venta.descuento)}</span>
+                        </div>
+                    ` : ''}
+                    <div class="ticket-total-row total-final">
+                        <span>TOTAL:</span>
+                        <span>${SICOM.Utils.formatCurrency(total)}</span>
+                    </div>
+                </div>
+            `;
+            
+            // QR Code (si existe)
+            if (venta.qr_url) {
+                html += `
+                    <div class="qr-section">
+                        <img class="qr-image" src="${venta.qr_url}" alt="QR">
+                        <div class="qr-label">Escanea para ver este ticket</div>
+                    </div>
+                `;
+            }
+            
+            // Footer
+            html += `
+                <div class="ticket-footer">
+                    <p>¡Gracias por tu compra!</p>
+                    <p style="font-size: 10px; margin-top: var(--space-2);">
+                        Este ticket es tu comprobante de compra
+                    </p>
+                </div>
+            `;
+            
+            document.getElementById('ticketContent').innerHTML = html;
+        }
+        
+        // Enviar por email
+        document.getElementById('btnEnviarEmail').addEventListener('click', async () => {
+            const email = document.getElementById('emailInput').value.trim();
+            const resultado = document.getElementById('emailResultado');
+            
+            if (!email) {
+                resultado.textContent = '⚠️ Ingresa un correo electrónico';
+                resultado.style.color = 'var(--color-warning)';
+                return;
+            }
+            
+            // Validar formato email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                resultado.textContent = '⚠️ Formato de correo inválido';
+                resultado.style.color = 'var(--color-warning)';
+                return;
+            }
+            
+            const btn = document.getElementById('btnEnviarEmail');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i>';
+            
+            try {
+                await SICOM.Ventas.enviarTicket(codMovimiento, email);
+                resultado.textContent = '✅ Ticket enviado correctamente';
+                resultado.style.color = 'var(--color-success)';
+            } catch (error) {
+                console.error('Error enviando email:', error);
+                resultado.textContent = '❌ Error al enviar el ticket';
+                resultado.style.color = 'var(--color-danger)';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-send"></i> Enviar';
+            }
+        });
+        
+        // Sidebar toggle
+        function initSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('show');
+            });
+            
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('show');
+            });
+        }
+        
+        // Logout
+        document.getElementById('btnLogout').addEventListener('click', async () => {
+            if (confirm('¿Deseas cerrar la sesión?')) {
+                try {
+                    await SICOM.Auth.logout();
+                } catch (error) {
+                    console.error('Error en logout:', error);
+                }
+            }
+        });
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            const session = SICOM.Session.getData();
+            if (session) {
+                document.getElementById('negocioNombre').textContent = session.negocio || '-';
+            }
+            
+            initSidebar();
+            cargarDetalle();
+        });
+    </script>
+</body>
+</html>

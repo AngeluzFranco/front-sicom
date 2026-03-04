@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4F46E5">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="icon" href="../img/icons/logo.jpg">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="../css/theme.css">
+    
+    <title>Subir Imagen - SICOM</title>
+    
+    <style>
+        .upload-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: var(--space-4);
+        }
+        
+        .upload-panel {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color-light);
+            padding: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+        
+        .dropzone {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-8);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            background: var(--bg-muted);
+        }
+        
+        .dropzone:hover,
+        .dropzone.dragover {
+            border-color: var(--color-primary);
+            background: rgba(79, 70, 229, 0.05);
+        }
+        
+        .dropzone.has-file {
+            border-color: var(--color-success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+        
+        .dropzone-icon {
+            font-size: 3rem;
+            color: var(--text-muted);
+            margin-bottom: var(--space-4);
+        }
+        
+        .dropzone.dragover .dropzone-icon,
+        .dropzone:hover .dropzone-icon {
+            color: var(--color-primary);
+        }
+        
+        .dropzone-text {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-2);
+        }
+        
+        .dropzone-hint {
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .preview-container {
+            margin-top: var(--space-6);
+            display: none;
+        }
+        
+        .preview-container.show {
+            display: block;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-4);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .file-info {
+            background: var(--bg-muted);
+            border-radius: var(--radius-md);
+            padding: var(--space-3);
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-4);
+        }
+        
+        .file-info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--space-1) 0;
+        }
+        
+        .file-info-label {
+            font-weight: var(--font-weight-medium);
+        }
+        
+        .upload-actions {
+            display: flex;
+            gap: var(--space-3);
+            justify-content: center;
+        }
+        
+        .result-panel {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color-light);
+            padding: var(--space-6);
+            display: none;
+        }
+        
+        .result-panel.show {
+            display: block;
+        }
+        
+        .result-success {
+            border-color: var(--color-success);
+        }
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+        }
+        
+        .result-header i {
+            font-size: 1.5rem;
+            color: var(--color-success);
+        }
+        
+        .result-header h3 {
+            margin: 0;
+            font-size: var(--font-size-lg);
+        }
+        
+        .result-image {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-4);
+        }
+        
+        .result-url {
+            background: var(--bg-muted);
+            border-radius: var(--radius-md);
+            padding: var(--space-3);
+            font-family: monospace;
+            font-size: var(--font-size-sm);
+            word-break: break-all;
+            margin-bottom: var(--space-4);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .result-url input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            font-family: monospace;
+            font-size: var(--font-size-sm);
+            color: var(--text-primary);
+        }
+        
+        .btn-copy {
+            padding: var(--space-2);
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: color var(--transition-fast);
+        }
+        
+        .btn-copy:hover {
+            color: var(--color-primary);
+        }
+        
+        .uploading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+        
+        .validation-hints {
+            background: var(--color-info-light);
+            border: 1px solid var(--color-info);
+            border-radius: var(--radius-md);
+            padding: var(--space-3);
+            margin-bottom: var(--space-4);
+            font-size: var(--font-size-sm);
+        }
+        
+        .validation-hints ul {
+            margin: 0;
+            padding-left: var(--space-4);
+        }
+        
+        .validation-hints li {
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Offline Banner -->
+    <div id="offlineBanner" class="offline-banner">
+        <i class="bi bi-wifi-off"></i> Sin conexión a internet
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <button class="btn btn-ghost" id="sidebarToggle" aria-label="Toggle menu">
+            <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+        </button>
+        
+        <a class="navbar-brand" href="../dashboard.html">
+            <i class="bi bi-shop"></i>
+            <span>SICOM</span>
+        </a>
+        
+        <div class="navbar-spacer"></div>
+        
+        <div class="navbar-user">
+            <div class="navbar-info">
+                <i class="bi bi-building"></i>
+                <span id="negocioNombre">-</span>
+            </div>
+            <button class="btn btn-ghost btn-sm" id="btnLogout" title="Cerrar sesión">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <ul class="sidebar-nav">
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="../dashboard.html">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-divider"></li>
+            <li class="sidebar-header">Herramientas</li>
+            <li class="sidebar-item">
+                <a class="sidebar-link active" href="index.html">
+                    <i class="bi bi-cloud-upload"></i>
+                    <span>Subir Imagen</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="upload-container">
+            <div class="page-header">
+                <h1 class="page-title">
+                    <i class="bi bi-cloud-upload"></i> Subir Imagen
+                </h1>
+            </div>
+
+            <!-- Panel de subida -->
+            <div class="upload-panel" id="uploadPanel">
+                <div class="validation-hints">
+                    <strong><i class="bi bi-info-circle"></i> Requisitos:</strong>
+                    <ul>
+                        <li>Formatos permitidos: JPG, PNG, GIF, WEBP</li>
+                        <li>Tamaño máximo: 5 MB</li>
+                    </ul>
+                </div>
+                
+                <!-- Dropzone -->
+                <div class="dropzone" id="dropzone">
+                    <div class="dropzone-icon">
+                        <i class="bi bi-cloud-arrow-up"></i>
+                    </div>
+                    <div class="dropzone-text">
+                        Arrastra una imagen aquí o haz clic para seleccionar
+                    </div>
+                    <div class="dropzone-hint">
+                        JPG, PNG, GIF, WEBP hasta 5MB
+                    </div>
+                    <input type="file" id="fileInput" class="file-input" accept="image/jpeg,image/png,image/gif,image/webp">
+                </div>
+
+                <!-- Preview -->
+                <div class="preview-container" id="previewContainer">
+                    <img id="previewImage" class="preview-image" alt="Preview">
+                    <div class="file-info" id="fileInfo">
+                        <div class="file-info-row">
+                            <span class="file-info-label">Nombre:</span>
+                            <span id="fileName">-</span>
+                        </div>
+                        <div class="file-info-row">
+                            <span class="file-info-label">Tipo:</span>
+                            <span id="fileType">-</span>
+                        </div>
+                        <div class="file-info-row">
+                            <span class="file-info-label">Tamaño:</span>
+                            <span id="fileSize">-</span>
+                        </div>
+                    </div>
+                    <div class="upload-actions">
+                        <button type="button" class="btn btn-primary" id="btnSubir">
+                            <i class="bi bi-cloud-upload"></i> Subir Imagen
+                        </button>
+                        <button type="button" class="btn btn-outline" id="btnCancelar">
+                            <i class="bi bi-x-lg"></i> Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resultado -->
+            <div class="result-panel result-success" id="resultPanel">
+                <div class="result-header">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <h3>Imagen subida correctamente</h3>
+                </div>
+                <img id="resultImage" class="result-image" alt="Imagen subida">
+                <div class="result-url">
+                    <i class="bi bi-link-45deg"></i>
+                    <input type="text" id="resultUrl" readonly>
+                    <button type="button" class="btn-copy" id="btnCopy" title="Copiar URL">
+                        <i class="bi bi-clipboard"></i>
+                    </button>
+                </div>
+                <div class="upload-actions">
+                    <button type="button" class="btn btn-primary" id="btnNueva">
+                        <i class="bi bi-plus-lg"></i> Subir otra imagen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- JavaScript -->
+    <script src="../js/idb.js"></script>
+    <script src="../js/app.js"></script>
+    
+    <script>
+        // Variables
+        let archivoSeleccionado = null;
+        
+        // DOM Elements
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const uploadPanel = document.getElementById('uploadPanel');
+        const resultPanel = document.getElementById('resultPanel');
+        const btnSubir = document.getElementById('btnSubir');
+        const btnCancelar = document.getElementById('btnCancelar');
+        const btnNueva = document.getElementById('btnNueva');
+        const btnCopy = document.getElementById('btnCopy');
+        
+        // Formatear tamaño
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1024 / 1024).toFixed(2) + ' MB';
+        }
+        
+        // Seleccionar archivo
+        function seleccionarArchivo(archivo) {
+            // Validar
+            const validacion = SICOM.Upload.validar(archivo);
+            if (!validacion.valid) {
+                SICOM.UI.toast(validacion.error, 'error');
+                return;
+            }
+            
+            archivoSeleccionado = archivo;
+            
+            // Preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                previewContainer.classList.add('show');
+                dropzone.classList.add('has-file');
+            };
+            reader.readAsDataURL(archivo);
+            
+            // Info
+            document.getElementById('fileName').textContent = archivo.name;
+            document.getElementById('fileType').textContent = archivo.type;
+            document.getElementById('fileSize').textContent = formatSize(archivo.size);
+        }
+        
+        // Click en dropzone
+        dropzone.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // Cambio en input
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                seleccionarArchivo(e.target.files[0]);
+            }
+        });
+        
+        // Drag & Drop
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+        });
+        
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('dragover');
+        });
+        
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                seleccionarArchivo(e.dataTransfer.files[0]);
+            }
+        });
+        
+        // Cancelar
+        btnCancelar.addEventListener('click', () => {
+            archivoSeleccionado = null;
+            fileInput.value = '';
+            previewContainer.classList.remove('show');
+            dropzone.classList.remove('has-file');
+        });
+        
+        // Subir
+        btnSubir.addEventListener('click', async () => {
+            if (!archivoSeleccionado) {
+                SICOM.UI.toast('Selecciona una imagen primero', 'warning');
+                return;
+            }
+            
+            btnSubir.disabled = true;
+            btnSubir.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Subiendo...';
+            uploadPanel.classList.add('uploading');
+            
+            try {
+                const resultado = await SICOM.Upload.subirImagen(archivoSeleccionado);
+                
+                // Mostrar resultado
+                const baseUrl = APP_CONFIG.apiBaseUrl;
+                const urlCompleta = baseUrl + resultado.url;
+                
+                document.getElementById('resultImage').src = urlCompleta;
+                document.getElementById('resultUrl').value = urlCompleta;
+                
+                uploadPanel.style.display = 'none';
+                resultPanel.classList.add('show');
+                
+                SICOM.UI.toast('Imagen subida correctamente', 'success');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                SICOM.UI.toast(error.message || 'Error al subir imagen', 'error');
+            } finally {
+                btnSubir.disabled = false;
+                btnSubir.innerHTML = '<i class="bi bi-cloud-upload"></i> Subir Imagen';
+                uploadPanel.classList.remove('uploading');
+            }
+        });
+        
+        // Nueva imagen
+        btnNueva.addEventListener('click', () => {
+            archivoSeleccionado = null;
+            fileInput.value = '';
+            previewContainer.classList.remove('show');
+            dropzone.classList.remove('has-file');
+            resultPanel.classList.remove('show');
+            uploadPanel.style.display = 'block';
+        });
+        
+        // Copiar URL
+        btnCopy.addEventListener('click', () => {
+            const urlInput = document.getElementById('resultUrl');
+            urlInput.select();
+            document.execCommand('copy');
+            
+            btnCopy.innerHTML = '<i class="bi bi-check"></i>';
+            SICOM.UI.toast('URL copiada al portapapeles', 'success');
+            
+            setTimeout(() => {
+                btnCopy.innerHTML = '<i class="bi bi-clipboard"></i>';
+            }, 2000);
+        });
+        
+        // Sidebar
+        function initSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('show');
+            });
+            
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('show');
+            });
+        }
+        
+        // Logout
+        document.getElementById('btnLogout').addEventListener('click', async () => {
+            if (confirm('¿Deseas cerrar la sesión?')) {
+                try { await SICOM.Auth.logout(); } catch (e) { console.error(e); }
+            }
+        });
+        
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            const session = SICOM.Session.getData();
+            if (session) {
+                document.getElementById('negocioNombre').textContent = session.negocio || '-';
+            }
+            initSidebar();
+        });
+    </script>
+</body>
+</html>
